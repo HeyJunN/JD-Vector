@@ -1,0 +1,29 @@
+{
+  "name": "jd-vector",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI 기반 직무 적합도 분석 및 커리어 로드맵 서비스",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @jd-vector/web dev",
+    "dev:server": "cd apps/server && poetry run uvicorn main:app --reload",
+    "build": "pnpm --filter @jd-vector/web build",
+    "build:server": "cd apps/server && poetry build",
+    "lint": "pnpm --recursive lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "test": "pnpm --recursive test",
+    "clean": "pnpm --recursive clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.4"
+}
