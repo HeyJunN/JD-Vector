@@ -109,3 +109,6 @@ alembic/versions/*.pyc
 
 # Fly.io
 fly.toml.backup
+
+# AI Assistant (Claude)
+.claude/
