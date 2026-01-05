@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import Header from '@/components/layout/Header';
 import UploadPage from '@/pages/UploadPage';
 
 // Pages (will be implemented later)
@@ -12,6 +13,7 @@ import UploadPage from '@/pages/UploadPage';
 function App() {
   return (
     <div className="min-h-screen bg-slate-950">
+      <Header />
       <Routes>
         <Route path="/" element={<UploadPage />} />
         <Route path="/upload" element={<UploadPage />} />

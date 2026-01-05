@@ -31,19 +31,19 @@ const formatFileSize = (bytes: number): string => {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
 const getFileIcon = (fileName: string) => {
   const extension = fileName.split('.').pop()?.toLowerCase();
   switch (extension) {
     case 'pdf':
-      return <FileType className="h-8 w-8 text-red-400" />;
+      return <FileType className="h-10 w-10 text-red-400" />;
     case 'txt':
     case 'md':
-      return <FileText className="h-8 w-8 text-blue-400" />;
+      return <FileText className="h-10 w-10 text-blue-400" />;
     default:
-      return <FileText className="h-8 w-8 text-gray-400" />;
+      return <FileText className="h-10 w-10 text-slate-400" />;
   }
 };
 
@@ -105,96 +105,98 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <div className={clsx('w-full', className)}>
-      {/* Label */}
-      <label className="mb-2 block text-sm font-medium text-gray-300">
+      {/* Label - Enhanced Typography */}
+      <label className="mb-4 block text-xl font-bold tracking-tight text-slate-200">
         {fileTypeLabel}
       </label>
 
-      {/* Dropzone */}
+      {/* Dropzone - Enhanced spacing and design */}
       <div
         {...getRootProps()}
         className={clsx(
-          'relative cursor-pointer rounded-lg border-2 border-dashed p-8 transition-all duration-200',
+          'group relative min-h-[280px] cursor-pointer rounded-xl border-2 border-dashed p-10 transition-all duration-200',
           // Base styles
-          'bg-gray-900/50 backdrop-blur-sm',
+          'bg-slate-900/30 backdrop-blur-sm',
           // State-based styles
           {
             // Default state
-            'border-gray-700 hover:border-gray-600 hover:bg-gray-900/70':
+            'border-slate-800/50 hover:scale-[1.01] hover:border-slate-700 hover:bg-slate-900/40':
               !isDragActive && !isDragReject && !error && !selectedFile,
             // Drag active
-            'border-blue-500 bg-blue-500/10': isDragActive && !isDragReject,
+            'scale-[1.01] border-blue-500/50 bg-blue-500/5':
+              isDragActive && !isDragReject,
             // Drag reject or error
-            'border-red-500 bg-red-500/10': isDragReject || error,
+            'border-red-500/50 bg-red-500/5': isDragReject || error,
             // File selected (ready state)
-            'border-green-500/50 bg-green-500/5': selectedFile && !error,
+            'border-emerald-500/30 bg-emerald-500/5': selectedFile && !error,
           }
         )}
       >
         <input {...getInputProps()} />
 
         {/* Content */}
-        <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="flex min-h-[200px] flex-col items-center justify-center space-y-6">
           {!selectedFile ? (
             <>
-              {/* Upload Icon */}
+              {/* Upload Icon - Larger */}
               <div
                 className={clsx(
-                  'rounded-full p-4 transition-colors duration-200',
+                  'rounded-2xl p-6 transition-all duration-200',
                   {
-                    'bg-gray-800': !isDragActive && !error,
-                    'bg-blue-500/20': isDragActive,
-                    'bg-red-500/20': error,
+                    'bg-slate-800/50': !isDragActive && !error,
+                    'bg-blue-500/10 group-hover:bg-blue-500/20': isDragActive,
+                    'bg-red-500/10': error,
                   }
                 )}
               >
                 {error ? (
-                  <AlertCircle className="h-12 w-12 text-red-400" />
+                  <AlertCircle className="h-14 w-14 text-red-400" />
                 ) : (
                   <UploadCloud
-                    className={clsx('h-12 w-12 transition-colors', {
-                      'text-gray-500': !isDragActive,
+                    className={clsx('h-14 w-14 transition-colors', {
+                      'text-slate-500 group-hover:text-slate-400':
+                        !isDragActive,
                       'text-blue-400': isDragActive,
                     })}
                   />
                 )}
               </div>
 
-              {/* Text */}
+              {/* Text - Enhanced spacing */}
               <div className="text-center">
-                <p className="text-base font-medium text-gray-200">
+                <p className="text-base font-semibold text-slate-200">
                   {isDragActive
                     ? '파일을 여기에 놓으세요'
                     : '파일을 드래그하거나 클릭하여 업로드'}
                 </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  PDF, TXT, MD (최대 {formatFileSize(maxSize)})
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                  PDF, TXT, MD · 최대 {formatFileSize(maxSize)}
                 </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="rounded-md bg-red-500/10 px-4 py-2">
-                  <p className="text-sm text-red-400">{error}</p>
+                <div className="rounded-xl bg-red-500/10 px-6 py-3 backdrop-blur-sm">
+                  <p className="text-sm font-medium text-red-400">{error}</p>
                 </div>
               )}
             </>
           ) : (
             <>
               {/* File Ready State */}
-              <div className="flex w-full items-center justify-between rounded-lg bg-gray-800/50 p-4">
-                <div className="flex items-center space-x-4">
+              <div className="flex w-full items-center justify-between rounded-xl bg-slate-800/50 p-6 backdrop-blur-sm">
+                <div className="flex items-center space-x-5">
                   {/* File Icon */}
                   <div className="flex-shrink-0">
                     {getFileIcon(selectedFile.name)}
                   </div>
 
                   {/* File Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold text-slate-100">
                       {selectedFile.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="mt-1 text-sm text-slate-500">
                       {formatFileSize(selectedFile.size)}
                     </p>
                   </div>
@@ -202,7 +204,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   {/* Remove Button */}
                   <button
                     onClick={handleRemoveFile}
-                    className="flex-shrink-0 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-700 hover:text-gray-200"
+                    className="flex-shrink-0 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200"
                     type="button"
                   >
                     <X className="h-5 w-5" />
@@ -211,9 +213,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               </div>
 
               {/* Ready Indicator */}
-              <div className="flex items-center space-x-2 text-green-400">
+              <div className="flex items-center space-x-2 text-emerald-400">
                 <CheckCircle2 className="h-5 w-5" />
-                <span className="text-sm font-medium">파일 준비됨</span>
+                <span className="text-sm font-semibold">파일 준비됨</span>
               </div>
             </>
           )}
@@ -222,7 +224,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
       {/* Helper Text */}
       {!selectedFile && !error && (
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-3 text-xs leading-relaxed text-slate-500">
           {fileType === 'resume'
             ? '이력서 또는 프로젝트 경험이 담긴 파일을 업로드하세요.'
             : '분석할 채용 공고 파일을 업로드하세요.'}
