@@ -29,8 +29,8 @@ PyMuPDF = "^1.23.20"
 # 벡터 DB 및 임베딩
 supabase = "^2.3.4"
 pgvector = "^0.2.4"
-chromadb = "^0.4.22"
-sentence-transformers = "^2.3.1"
+# chromadb = "^0.4.22"  # Phase 3에서 활성화 (C++ 빌드 도구 필요)
+# sentence-transformers = "^2.3.1"  # Phase 3에서 활성화
 
 # 데이터베이스
 sqlalchemy = "^2.0.25"
