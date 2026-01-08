@@ -13,7 +13,7 @@ import { clsx } from 'clsx';
 interface FileUploadProps {
   fileType: 'resume' | 'jd';
   onFileSelect: (file: File | null) => void;
-  acceptedFormats?: string[];
+  acceptedFormats?: Record<string, string[]>;
   maxSize?: number; // bytes
   className?: string;
 }

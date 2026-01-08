@@ -1,31 +1,146 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { FileUpload } from '@/components/upload/FileUpload';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { uploadResume, uploadJobDescription } from '@/lib/api';
 
 export const UploadPage = () => {
   const navigate = useNavigate();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jdFile, setJdFile] = useState<File | null>(null);
 
-  const isAnalysisEnabled = resumeFile !== null && jdFile !== null;
+  // 업로드 상태 관리
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStage, setUploadStage] = useState<string>('');
 
-  const handleAnalyze = () => {
-    if (!isAnalysisEnabled) return;
+  const isAnalysisEnabled = resumeFile !== null && jdFile !== null && !isUploading;
 
-    // TODO: Pass files data to analysis page
-    // For now, just navigate
-    navigate('/analysis', {
-      state: {
-        resumeFile,
-        jdFile,
-      },
-    });
+  /**
+   * 파일 업로드 및 분석 시작
+   * 순차적으로 이력서 -> JD 업로드 후 /analysis 페이지로 이동
+   */
+  const handleAnalyze = async () => {
+    if (!isAnalysisEnabled || !resumeFile || !jdFile) return;
+
+    setIsUploading(true);
+    let toastId: string | undefined;
+
+    try {
+      // 1. 이력서 업로드
+      setUploadStage('이력서를 업로드하고 있습니다...');
+      toastId = toast.loading('이력서를 업로드하고 있습니다...');
+
+      const resumeResponse = await uploadResume(resumeFile);
+
+      toast.dismiss(toastId);
+      toast.success(
+        `이력서 업로드 완료 (${resumeResponse.metadata.page_count}페이지, ${resumeResponse.word_count.toLocaleString()}단어)`
+      );
+
+      // 개발 환경에서 cleaned_text 로깅
+      if (import.meta.env.DEV) {
+        console.log('[Resume Upload Success]', {
+          file_id: resumeResponse.file_id,
+          filename: resumeResponse.filename,
+          word_count: resumeResponse.word_count,
+          char_count: resumeResponse.char_count,
+          page_count: resumeResponse.metadata.page_count,
+          language: resumeResponse.metadata.language,
+          parser: resumeResponse.metadata.parser_used,
+          cleaned_text_preview: resumeResponse.cleaned_text.substring(0, 200) + '...',
+        });
+      }
+
+      // 2. 채용 공고 업로드
+      setUploadStage('AI가 채용 공고를 분석하고 있습니다...');
+      toastId = toast.loading('AI가 채용 공고를 분석하고 있습니다...');
+
+      const jdResponse = await uploadJobDescription(jdFile);
+
+      toast.dismiss(toastId);
+      toast.success(
+        `채용 공고 분석 완료 (${jdResponse.metadata.page_count}페이지, ${jdResponse.word_count.toLocaleString()}단어)`
+      );
+
+      // 개발 환경에서 cleaned_text 로깅
+      if (import.meta.env.DEV) {
+        console.log('[JD Upload Success]', {
+          file_id: jdResponse.file_id,
+          filename: jdResponse.filename,
+          word_count: jdResponse.word_count,
+          char_count: jdResponse.char_count,
+          page_count: jdResponse.metadata.page_count,
+          language: jdResponse.metadata.language,
+          parser: jdResponse.metadata.parser_used,
+          cleaned_text_preview: jdResponse.cleaned_text.substring(0, 200) + '...',
+        });
+      }
+
+      // 3. 성공 - 분석 페이지로 이동
+      toast.success('파일 업로드가 완료되었습니다! 분석을 시작합니다.');
+
+      // React Router state로 데이터 전달 (URL 파라미터보다 안전)
+      navigate('/analysis', {
+        state: {
+          resumeData: resumeResponse,
+          jdData: jdResponse,
+        },
+      });
+    } catch (error) {
+      // 에러 처리
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
+
+      const errorMessage =
+        error instanceof Error ? error.message : '파일 업로드 중 오류가 발생했습니다.';
+
+      toast.error(errorMessage);
+
+      // 개발 환경에서 상세 에러 로깅
+      if (import.meta.env.DEV) {
+        console.error('[Upload Error]', error);
+      }
+    } finally {
+      setIsUploading(false);
+      setUploadStage('');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="relative min-h-screen bg-slate-950">
+      {/* Loading Overlay - 업로드 중일 때만 표시 */}
+      {isUploading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm">
+          <div className="flex flex-col items-center space-y-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-12 shadow-2xl backdrop-blur-md">
+            {/* Spinner Animation */}
+            <div className="relative">
+              <Loader2 className="h-16 w-16 animate-spin text-blue-500" />
+              <div className="absolute inset-0 -z-10 animate-pulse rounded-full bg-blue-500/20 blur-xl" />
+            </div>
+
+            {/* Progress Text */}
+            <div className="text-center">
+              <p className="text-xl font-semibold text-slate-100">
+                {uploadStage || '처리 중...'}
+              </p>
+              <p className="mt-2 text-sm text-slate-400">
+                잠시만 기다려주세요. 대용량 파일은 수십 초가 걸릴 수 있습니다.
+              </p>
+            </div>
+
+            {/* Animated Progress Indicator */}
+            <div className="flex space-x-2">
+              <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]" />
+              <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]" />
+              <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
         {/* Upload Grid - Now the main focus */}
