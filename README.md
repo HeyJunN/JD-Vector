@@ -170,13 +170,16 @@ Conventional Commits 준수:
 - [x] Frontend/Backend 기본 설정
 - [x] 진입점 파일 작성
 
-### Phase 2: 파일 업로드 및 PDF 파싱 (백엔드 완료)
+### Phase 2: 파일 업로드 및 PDF 파싱 (✅ 완료)
 
-- [ ] FileUpload 컴포넌트 (react-dropzone) - Frontend
+- [x] FileUpload 컴포넌트 (react-dropzone) - Frontend
 - [x] PDF 텍스트 추출 (PyPDFLoader, pdfplumber) - Backend
 - [x] Upload API 엔드포인트 구현 (`POST /api/v1/upload`)
 - [x] 텍스트 정제 및 언어 감지
 - [x] LangChain Document 변환 (RAG 준비)
+- [x] 프론트엔드-백엔드 API 연동 (axios + react-hot-toast)
+- [x] 로딩 UI 및 에러 핸들링
+- [x] AnalysisPage 구현 (업로드된 데이터 시각화)
 - [ ] Supabase Storage 연동 (Phase 3로 이동)
 
 ### Phase 3: RAG 파이프라인
