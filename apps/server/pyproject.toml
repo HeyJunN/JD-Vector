@@ -55,6 +55,7 @@ python-dotenv = "^1.0.1"
 # 유틸리티
 pydantic-extra-types = "^2.4.1"
 python-json-logger = "^2.0.7"
+tenacity = "^8.2.3"  # 재시도 로직
 
 [tool.poetry.group.dev.dependencies]
 # 테스트
