@@ -2,7 +2,7 @@
 Upload Endpoint - PDF 파일 업로드 API
 """
 
-from fastapi import APIRouter, File, Form, UploadFile, HTTPException, status
+from fastapi import APIRouter, File, Form, UploadFile, HTTPException, status, BackgroundTasks
 from typing import Optional
 import logging
 
@@ -20,6 +20,7 @@ from app.services.upload_service import (
     UploadServiceError,
     get_upload_statistics,
 )
+from app.services.ingestion_service import get_ingestion_service, IngestionResult
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -45,6 +46,46 @@ ERROR_STATUS_MAP = {
 def get_http_status_code(error_code: ErrorCodeEnum) -> int:
     """에러 코드에 해당하는 HTTP 상태 코드 반환"""
     return ERROR_STATUS_MAP.get(error_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ============================================================================
+# Background Task: 문서 벡터화 (Ingestion)
+# ============================================================================
+
+
+def run_ingestion_background(upload_result: UploadResponseData) -> None:
+    """
+    백그라운드에서 문서 벡터화 실행
+
+    Args:
+        upload_result: 업로드 결과 데이터
+    """
+    try:
+        logger.info(f"[Background] Starting ingestion for file_id: {upload_result.file_id}")
+
+        ingestion_service = get_ingestion_service()
+        result: IngestionResult = ingestion_service.ingest_document(
+            upload_result=upload_result,
+            skip_if_exists=False,  # 새 업로드이므로 항상 처리
+        )
+
+        if result.success:
+            logger.info(
+                f"[Background] Ingestion completed: file_id={result.file_id}, "
+                f"chunks={result.chunk_count}, time={result.processing_time_ms:.0f}ms, "
+                f"cost=${result.estimated_cost_usd:.6f}"
+            )
+        else:
+            logger.error(
+                f"[Background] Ingestion failed: file_id={result.file_id}, "
+                f"error={result.error}"
+            )
+
+    except Exception as e:
+        logger.error(
+            f"[Background] Unexpected error during ingestion for {upload_result.file_id}: {e}",
+            exc_info=True,
+        )
 
 
 # ============================================================================
@@ -109,6 +150,7 @@ def get_http_status_code(error_code: ErrorCodeEnum) -> int:
     tags=["upload"],
 )
 async def upload_pdf(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(
         ...,
         description="업로드할 PDF 파일",
@@ -127,6 +169,10 @@ async def upload_pdf(
         default="auto",
         description="PDF 파서 타입: 'auto', 'pypdf', 'pdfplumber', 'pymupdf'",
         example="auto",
+    ),
+    auto_vectorize: bool = Form(
+        default=True,
+        description="업로드 후 자동 벡터화 여부 (기본값: True)",
     ),
 ) -> UploadResponse:
     """
@@ -211,11 +257,19 @@ async def upload_pdf(
         stats = get_upload_statistics(response_data)
         logger.info(f"Upload statistics: {stats}")
 
-        # 5. 성공 응답 반환
+        # 5. 백그라운드에서 벡터화 실행 (auto_vectorize가 True인 경우)
+        if auto_vectorize:
+            background_tasks.add_task(run_ingestion_background, response_data)
+            logger.info(f"Scheduled background ingestion for file_id: {response_data.file_id}")
+            vectorize_message = " Vectorization started in background."
+        else:
+            vectorize_message = ""
+
+        # 6. 성공 응답 반환 (사용자는 즉시 응답을 받음)
         return UploadResponse(
             success=True,
             data=response_data,
-            message=f"PDF file '{file.filename}' uploaded and parsed successfully",
+            message=f"PDF file '{file.filename}' uploaded and parsed successfully.{vectorize_message}",
         )
 
     except UploadServiceError as e:
