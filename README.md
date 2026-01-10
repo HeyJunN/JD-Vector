@@ -10,6 +10,7 @@ AI 기반 직무 적합도 분석 및 커리어 로드맵 서비스
 - **Backend**: FastAPI + LangChain + Python 3.11
 - **Database**: Supabase (PostgreSQL + pgvector)
 - **AI/LLM**: OpenAI GPT-4o mini, text-embedding-3-small
+- **Utilities**: tenacity (재시도 로직), tiktoken (토큰 계산)
 - **배포**: Vercel (Frontend), Fly.io (Backend)
 
 ## 프로젝트 구조
@@ -133,11 +134,25 @@ pnpm dev:server
 
 ## API 엔드포인트
 
+### 공통
 - `GET /` - 루트 엔드포인트
 - `GET /health` - 헬스 체크
 - `GET /api/v1/health` - API v1 헬스 체크
-- `POST /api/v1/upload` - 파일 업로드 (구현 예정)
-- `POST /api/v1/analysis` - 분석 실행 (구현 예정)
+
+### 업로드 (Upload)
+- `POST /api/v1/upload` - PDF 파일 업로드 및 텍스트 추출 (자동 벡터화 지원)
+- `GET /api/v1/upload/health` - 업로드 서비스 헬스 체크
+
+### 분석 (Analysis)
+- `POST /api/v1/analysis/ingest` - 문서 벡터화 (수동)
+- `POST /api/v1/analysis/match` - 이력서-JD 매칭 분석
+- `POST /api/v1/analysis/gap-analysis` - 스킬 갭 분석 (피드백 포함)
+- `GET /api/v1/analysis/documents` - 벡터화된 문서 목록 조회
+- `GET /api/v1/analysis/documents/{file_id}` - 문서 상태 조회
+- `DELETE /api/v1/analysis/documents/{file_id}` - 문서 삭제
+- `GET /api/v1/analysis/health` - 분석 서비스 헬스 체크
+
+### 로드맵 (Roadmap) - Phase 4 예정
 - `POST /api/v1/roadmap` - 로드맵 생성 (구현 예정)
 
 ## 개발 컨벤션
@@ -164,7 +179,7 @@ Conventional Commits 준수:
 
 ## 다음 단계 (Phase별 구현 계획)
 
-### Phase 1: 기본 UI 구조 (현재 완료)
+### Phase 1: 기본 UI 구조 (✅ 완료)
 
 - [x] 프로젝트 초기 구조
 - [x] Frontend/Backend 기본 설정
@@ -180,31 +195,41 @@ Conventional Commits 준수:
 - [x] 프론트엔드-백엔드 API 연동 (axios + react-hot-toast)
 - [x] 로딩 UI 및 에러 핸들링
 - [x] AnalysisPage 구현 (업로드된 데이터 시각화)
-- [ ] Supabase Storage 연동 (Phase 3로 이동)
 
-### Phase 3: RAG 파이프라인
+### Phase 3: RAG 파이프라인 및 매칭 엔진 (✅ 완료)
 
-- [ ] 임베딩 생성 (OpenAI API)
-- [ ] 벡터 저장 (Supabase pgvector)
-- [ ] 코사인 유사도 계산
+- [x] PDF 텍스트 추출 및 전처리 로직 완성
+- [x] FastAPI BackgroundTasks를 이용한 자동 벡터 인제션 구현
+- [x] Supabase Vector Store (pgvector) 연동 및 재시도 로직 (tenacity) 적용
+- [x] 섹션 분류 (Section Classification) 및 가중치 기반 매칭 알고리즘 고도화
+- [x] 유사 기술 스택 (Similar Tech Group) 가산점 로직 반영
+- [x] 임베딩 생성 (OpenAI text-embedding-3-small, 1536차원)
+- [x] 벡터 저장 및 검색 (Supabase pgvector RPC 함수)
+- [x] 코사인 유사도 계산 및 매칭 점수/등급 산출
+- [x] 스킬 갭 분석 API (`/analysis/gap-analysis`)
+- [x] 건설적 피드백 생성 (강점, 개선점, 잠재력, 액션 아이템)
 
-### Phase 4: 분석 결과 시각화
+### Phase 4: 로드맵 생성 및 콘텐츠 추천 (🚀 준비 완료)
+
+- [ ] LangChain Agent: AI 로드맵 생성
+- [ ] 맞춤형 학습 계획 (3개월 커리큘럼)
+- [ ] 추천 리소스 (강의, 문서, 프로젝트)
+- [ ] TodoChecklist 컴포넌트 (인터랙티브 로드맵)
+- [ ] RoadmapPage 완성
+
+### Phase 5: 분석 결과 시각화
 
 - [ ] RadarChart 컴포넌트 (Recharts)
 - [ ] MatchScore 컴포넌트
 - [ ] ResultPage 완성
-
-### Phase 5: AI 로드맵 생성
-
-- [ ] LangChain Agent: 로드맵 생성
-- [ ] TodoChecklist 컴포넌트
-- [ ] RoadmapPage 완성
+- [ ] 피드백 UI (강점/약점/잠재력 시각화)
 
 ### Phase 6: 배포 및 최적화
 
 - [ ] Vercel 배포 (Frontend)
 - [ ] Fly.io 배포 (Backend)
 - [ ] 성능 최적화
+- [ ] Supabase Storage 연동 (파일 영구 저장)
 
 ## 라이선스
 
