@@ -389,8 +389,24 @@ class VectorStore:
     # 문서 조회
     # ------------------------------------------------------------------------
 
+    def get_document_by_id(self, doc_id: UUID) -> Optional[Dict[str, Any]]:
+        """id(PK)로 문서 조회"""
+        def _get(client: Client):
+            result = (
+                client.table("documents")
+                .select("id, file_id, filename, file_type, embedding_status, chunk_count, word_count, char_count, page_count, language, created_at, updated_at")
+                .eq("id", str(doc_id))
+                .execute()
+            )
+
+            if result.data:
+                return result.data[0]
+            return None
+
+        return self._execute_with_retry(f"get_document_by_id({doc_id})", _get)
+
     def get_document_by_file_id(self, file_id: UUID) -> Optional[Dict[str, Any]]:
-        """file_id로 문서 조회"""
+        """file_id로 문서 조회 (업로드 시 생성된 ID)"""
         def _get(client: Client):
             result = (
                 client.table("documents")
@@ -403,7 +419,31 @@ class VectorStore:
                 return result.data[0]
             return None
 
-        return self._execute_with_retry(f"get_document({file_id})", _get)
+        return self._execute_with_retry(f"get_document_by_file_id({file_id})", _get)
+
+    def get_chunks_by_document_id(
+        self,
+        doc_id: UUID,
+        include_embedding: bool = False,
+    ) -> List[Dict[str, Any]]:
+        """document_id(PK)로 청크 조회"""
+        def _get(client: Client):
+            columns = (
+                "*" if include_embedding
+                else "id, document_id, file_id, chunk_index, content, section_type, char_count, token_count, created_at"
+            )
+
+            result = (
+                client.table("document_chunks")
+                .select(columns)
+                .eq("document_id", str(doc_id))
+                .order("chunk_index")
+                .execute()
+            )
+
+            return result.data or []
+
+        return self._execute_with_retry(f"get_chunks_by_document_id({doc_id})", _get)
 
     def get_chunks_by_file_id(
         self,
