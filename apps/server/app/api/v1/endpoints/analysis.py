@@ -69,8 +69,8 @@ class IngestResponse(BaseModel):
 class MatchRequest(BaseModel):
     """매칭 분석 요청"""
 
-    resume_file_id: UUID = Field(..., description="이력서 파일 ID")
-    jd_file_id: UUID = Field(..., description="채용공고 파일 ID")
+    resume_id: UUID = Field(..., description="이력서 문서 ID (documents 테이블의 id)")
+    jd_id: UUID = Field(..., description="채용공고 문서 ID (documents 테이블의 id)")
 
 
 class MatchResponse(BaseModel):
@@ -223,11 +223,11 @@ async def ingest_document(
 async def analyze_match(request: MatchRequest) -> MatchResponse:
     """이력서-JD 매칭 분석"""
     try:
-        # 1. 두 문서가 벡터화되었는지 확인
+        # 1. 두 문서가 벡터화되었는지 확인 (id로 조회)
         vector_store = get_vector_store()
 
-        resume_doc = vector_store.get_document_by_file_id(request.resume_file_id)
-        jd_doc = vector_store.get_document_by_file_id(request.jd_file_id)
+        resume_doc = vector_store.get_document_by_id(request.resume_id)
+        jd_doc = vector_store.get_document_by_id(request.jd_id)
 
         if not resume_doc:
             raise HTTPException(
@@ -236,7 +236,7 @@ async def analyze_match(request: MatchRequest) -> MatchResponse:
                     "success": False,
                     "error": {
                         "code": "RESUME_NOT_FOUND",
-                        "message": f"Resume document not found: {request.resume_file_id}",
+                        "message": f"Resume document not found: {request.resume_id}",
                     },
                 },
             )
@@ -248,7 +248,7 @@ async def analyze_match(request: MatchRequest) -> MatchResponse:
                     "success": False,
                     "error": {
                         "code": "JD_NOT_FOUND",
-                        "message": f"Job description document not found: {request.jd_file_id}",
+                        "message": f"Job description document not found: {request.jd_id}",
                     },
                 },
             )
@@ -280,14 +280,23 @@ async def analyze_match(request: MatchRequest) -> MatchResponse:
                 },
             )
 
-        # 2. 매칭 분석 실행
+        # 2. 매칭 분석 실행 (file_id 사용 - retriever는 file_id 기반)
         retriever = get_retriever()
+        resume_file_id = UUID(resume_doc.get("file_id"))
+        jd_file_id = UUID(jd_doc.get("file_id"))
+
+        # 3. 전체 텍스트 가져오기 (유사 기술 분석용)
+        resume_text = resume_doc.get("cleaned_text") or resume_doc.get("text_content", "")
+        jd_text = jd_doc.get("cleaned_text") or jd_doc.get("text_content", "")
+
         match_result = retriever.analyze_match(
-            resume_file_id=request.resume_file_id,
-            jd_file_id=request.jd_file_id,
+            resume_file_id=resume_file_id,
+            jd_file_id=jd_file_id,
+            resume_text=resume_text,
+            jd_text=jd_text,
         )
 
-        # 3. 응답 구성
+        # 4. 응답 구성
         return MatchResponse(
             success=True,
             data=match_result.to_dict(),
@@ -326,11 +335,11 @@ async def analyze_match(request: MatchRequest) -> MatchResponse:
 async def analyze_gaps(request: MatchRequest) -> MatchResponse:
     """스킬 갭 분석"""
     try:
-        # 문서 확인
+        # 문서 확인 (id로 조회)
         vector_store = get_vector_store()
 
-        resume_doc = vector_store.get_document_by_file_id(request.resume_file_id)
-        jd_doc = vector_store.get_document_by_file_id(request.jd_file_id)
+        resume_doc = vector_store.get_document_by_id(request.resume_id)
+        jd_doc = vector_store.get_document_by_id(request.jd_id)
 
         if not resume_doc or resume_doc.get("embedding_status") != "completed":
             raise HTTPException(
@@ -356,10 +365,19 @@ async def analyze_gaps(request: MatchRequest) -> MatchResponse:
                 },
             )
 
-        # 갭 분석 실행
+        # 갭 분석 실행 (file_id 사용)
+        resume_file_id = UUID(resume_doc.get("file_id"))
+        jd_file_id = UUID(jd_doc.get("file_id"))
+
+        # 전체 텍스트 가져오기 (유사 기술 분석용)
+        resume_text = resume_doc.get("cleaned_text") or resume_doc.get("text_content", "")
+        jd_text = jd_doc.get("cleaned_text") or jd_doc.get("text_content", "")
+
         gap_result = analyze_skill_gaps(
-            resume_file_id=request.resume_file_id,
-            jd_file_id=request.jd_file_id,
+            resume_file_id=resume_file_id,
+            jd_file_id=jd_file_id,
+            resume_text=resume_text,
+            jd_text=jd_text,
         )
 
         return MatchResponse(
