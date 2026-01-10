@@ -44,78 +44,181 @@ class SectionType(str, Enum):
     PREFERRED = "preferred"
     BENEFITS = "benefits"
     SALARY = "salary"
+    TECH_STACK = "tech_stack"
 
     # 공통
     UNKNOWN = "unknown"
 
 
 # ============================================================================
-# 섹션 헤더 패턴 정의 (한국어/영어)
+# 섹션 헤더 패턴 정의 (한국어/영어) - 강화된 버전
 # ============================================================================
 
-# 이력서 섹션 패턴
+# 헤더 앞에 올 수 있는 prefix (이모지, 번호, 기호 등)
+HEADER_PREFIX = r"^[\s]*(?:[\d\.\-\*\•\◦\▪\▸\►\➤\✓\✔\☑\🔹\🔸\📌\📍\💼\🎯\✨\⭐\★\☆\#\[\]【】\(\)]*\s*)?"
+
+# 이력서 섹션 패턴 (더 유연한 매칭)
 RESUME_SECTION_PATTERNS: Dict[SectionType, List[str]] = {
     SectionType.SUMMARY: [
-        r"(?i)^[\s]*(?:summary|profile|about\s*me|자기\s*소개|소개|요약|개요)",
-        r"(?i)^[\s]*(?:professional\s*summary|career\s*summary|executive\s*summary)",
+        # 자기소개 관련
+        HEADER_PREFIX + r"(?:자기\s*소개|자기소개서?|소개|자소서)",
+        HEADER_PREFIX + r"(?:about\s*me|summary|profile|introduction)",
+        HEADER_PREFIX + r"(?:professional\s*summary|career\s*summary|executive\s*summary)",
+        HEADER_PREFIX + r"(?:간략\s*소개|인사말|커리어\s*요약)",
     ],
     SectionType.EXPERIENCE: [
-        r"(?i)^[\s]*(?:experience|work\s*experience|employment|career|경력|경험|이력|직장\s*경력)",
-        r"(?i)^[\s]*(?:professional\s*experience|work\s*history|업무\s*경력|근무\s*경력)",
+        # 경력 관련
+        HEADER_PREFIX + r"(?:경력\s*사항|경력사항|경력|이력|커리어)",
+        HEADER_PREFIX + r"(?:업무\s*경력|근무\s*경력|직장\s*경력|회사\s*경력)",
+        HEADER_PREFIX + r"(?:work\s*experience|experience|employment|career)",
+        HEADER_PREFIX + r"(?:professional\s*experience|work\s*history)",
+        HEADER_PREFIX + r"(?:경험|실무\s*경험|프로젝트\s*경험)",
     ],
     SectionType.SKILLS: [
-        r"(?i)^[\s]*(?:skills|technical\s*skills|기술|스킬|역량|기술\s*스택|보유\s*기술)",
-        r"(?i)^[\s]*(?:core\s*competencies|expertise|technologies|tools)",
+        # 기술 스택 관련
+        HEADER_PREFIX + r"(?:기술\s*스택|기술스택|스킬|기술|역량)",
+        HEADER_PREFIX + r"(?:보유\s*기술|핵심\s*역량|전문\s*기술|기술\s*역량)",
+        HEADER_PREFIX + r"(?:skills?|technical\s*skills?|tech\s*stack)",
+        HEADER_PREFIX + r"(?:core\s*competencies|expertise|technologies|tools)",
+        HEADER_PREFIX + r"(?:사용\s*기술|개발\s*환경|개발\s*스택)",
     ],
     SectionType.EDUCATION: [
-        r"(?i)^[\s]*(?:education|academic|학력|교육|학교)",
-        r"(?i)^[\s]*(?:educational\s*background|학력\s*사항)",
+        # 학력 관련
+        HEADER_PREFIX + r"(?:학력\s*사항|학력사항|학력|교육)",
+        HEADER_PREFIX + r"(?:education|academic|educational\s*background)",
+        HEADER_PREFIX + r"(?:학교|대학|졸업)",
     ],
     SectionType.PROJECTS: [
-        r"(?i)^[\s]*(?:projects|프로젝트|포트폴리오|portfolio)",
-        r"(?i)^[\s]*(?:personal\s*projects|side\s*projects|개인\s*프로젝트)",
+        # 프로젝트 관련
+        HEADER_PREFIX + r"(?:프로젝트|포트폴리오|portfolio|projects?)",
+        HEADER_PREFIX + r"(?:개인\s*프로젝트|사이드\s*프로젝트|팀\s*프로젝트)",
+        HEADER_PREFIX + r"(?:personal\s*projects?|side\s*projects?)",
+        HEADER_PREFIX + r"(?:주요\s*프로젝트|대표\s*프로젝트)",
     ],
     SectionType.CERTIFICATIONS: [
-        r"(?i)^[\s]*(?:certifications?|licenses?|자격증|자격\s*사항|면허)",
-        r"(?i)^[\s]*(?:professional\s*certifications?|certificates?)",
+        # 자격증 관련
+        HEADER_PREFIX + r"(?:자격증|자격\s*사항|자격사항|면허|라이선스)",
+        HEADER_PREFIX + r"(?:certifications?|licenses?|certificates?)",
+        HEADER_PREFIX + r"(?:professional\s*certifications?)",
     ],
     SectionType.AWARDS: [
-        r"(?i)^[\s]*(?:awards?|honors?|achievements?|수상|수상\s*경력|성과)",
+        # 수상 관련
+        HEADER_PREFIX + r"(?:수상\s*경력|수상경력|수상|성과|업적)",
+        HEADER_PREFIX + r"(?:awards?|honors?|achievements?)",
     ],
     SectionType.CONTACT: [
-        r"(?i)^[\s]*(?:contact|연락처|인적\s*사항|개인\s*정보)",
+        # 연락처 관련
+        HEADER_PREFIX + r"(?:연락처|인적\s*사항|개인\s*정보|contact)",
+        HEADER_PREFIX + r"(?:기본\s*정보|인적사항)",
     ],
 }
 
-# JD 섹션 패턴
+# JD 섹션 패턴 (더 유연한 매칭)
 JD_SECTION_PATTERNS: Dict[SectionType, List[str]] = {
     SectionType.COMPANY_INFO: [
-        r"(?i)^[\s]*(?:about\s*us|company|회사\s*소개|기업\s*소개|우리\s*회사)",
-        r"(?i)^[\s]*(?:who\s*we\s*are|our\s*company|회사\s*정보)",
+        # 회사 소개
+        HEADER_PREFIX + r"(?:회사\s*소개|기업\s*소개|회사소개|기업소개)",
+        HEADER_PREFIX + r"(?:우리\s*회사|about\s*us|company|our\s*company)",
+        HEADER_PREFIX + r"(?:who\s*we\s*are|회사\s*정보|기업\s*정보)",
+        HEADER_PREFIX + r"(?:조직\s*소개|팀\s*소개)",
     ],
     SectionType.RESPONSIBILITIES: [
-        r"(?i)^[\s]*(?:responsibilities|duties|role|담당\s*업무|주요\s*업무|업무\s*내용)",
-        r"(?i)^[\s]*(?:what\s*you.+do|job\s*description|하는\s*일|역할)",
-        r"(?i)^[\s]*(?:key\s*responsibilities|업무\s*소개)",
+        # 주요 업무 / 담당 업무
+        HEADER_PREFIX + r"(?:주요\s*업무|주요업무|담당\s*업무|담당업무)",
+        HEADER_PREFIX + r"(?:업무\s*내용|업무내용|하는\s*일|역할)",
+        HEADER_PREFIX + r"(?:responsibilities|duties|role|what\s*you.+do)",
+        HEADER_PREFIX + r"(?:job\s*description|key\s*responsibilities)",
+        HEADER_PREFIX + r"(?:업무\s*소개|이런\s*일)",
+        HEADER_PREFIX + r"(?:주요\s*역할|담당\s*역할)",
     ],
     SectionType.REQUIREMENTS: [
-        r"(?i)^[\s]*(?:requirements?|qualifications?|자격\s*요건|필수\s*요건|지원\s*자격)",
-        r"(?i)^[\s]*(?:what\s*we.+looking|필수\s*조건|기본\s*자격|required)",
-        r"(?i)^[\s]*(?:must\s*have|minimum\s*requirements?|필수\s*사항)",
+        # 자격 요건 / 필수 조건
+        HEADER_PREFIX + r"(?:자격\s*요건|자격요건|필수\s*요건|필수요건)",
+        HEADER_PREFIX + r"(?:지원\s*자격|지원자격|필수\s*조건|필수조건)",
+        HEADER_PREFIX + r"(?:기본\s*자격|자격\s*조건|자격조건)",
+        HEADER_PREFIX + r"(?:requirements?|qualifications?|required)",
+        HEADER_PREFIX + r"(?:must\s*have|minimum\s*requirements?)",
+        HEADER_PREFIX + r"(?:이런\s*분.*찾|필요\s*역량|필수\s*역량)",
+        HEADER_PREFIX + r"(?:지원\s*요건|채용\s*조건)",
     ],
     SectionType.PREFERRED: [
-        r"(?i)^[\s]*(?:preferred|nice\s*to\s*have|우대\s*사항|우대\s*조건|플러스)",
-        r"(?i)^[\s]*(?:bonus|plus|desired|선호\s*사항|가점\s*사항)",
+        # 우대 사항
+        HEADER_PREFIX + r"(?:우대\s*사항|우대사항|우대\s*조건|우대조건)",
+        HEADER_PREFIX + r"(?:가점\s*사항|가점사항|플러스|plus)",
+        HEADER_PREFIX + r"(?:preferred|nice\s*to\s*have|bonus|desired)",
+        HEADER_PREFIX + r"(?:선호\s*사항|이런\s*분.*우대|우대\s*역량)",
+        HEADER_PREFIX + r"(?:추가\s*우대|경험.*있으면)",
     ],
     SectionType.BENEFITS: [
-        r"(?i)^[\s]*(?:benefits?|perks?|복리\s*후생|혜택|베네핏|복지)",
-        r"(?i)^[\s]*(?:what\s*we\s*offer|우리가\s*제공|근무\s*환경)",
+        # 복리후생
+        HEADER_PREFIX + r"(?:복리\s*후생|복리후생|복지|혜택|베네핏)",
+        HEADER_PREFIX + r"(?:benefits?|perks?|what\s*we\s*offer)",
+        HEADER_PREFIX + r"(?:근무\s*환경|근무환경|우리가\s*제공)",
+        HEADER_PREFIX + r"(?:지원\s*사항|근무\s*조건|처우)",
     ],
     SectionType.SALARY: [
-        r"(?i)^[\s]*(?:salary|compensation|연봉|급여|보상|처우)",
-        r"(?i)^[\s]*(?:pay|remuneration|급여\s*조건)",
+        # 급여
+        HEADER_PREFIX + r"(?:급여|연봉|보상|처우|salary|compensation)",
+        HEADER_PREFIX + r"(?:pay|remuneration|급여\s*조건)",
+    ],
+    SectionType.TECH_STACK: [
+        # 기술 스택 (JD용)
+        HEADER_PREFIX + r"(?:기술\s*스택|기술스택|tech\s*stack)",
+        HEADER_PREFIX + r"(?:개발\s*환경|사용\s*기술|기술\s*환경)",
+        HEADER_PREFIX + r"(?:tools?|technologies|스택)",
     ],
 }
+
+
+# ============================================================================
+# 키워드 기반 섹션 추론 (헤더가 없는 경우 내용 기반 추론)
+# ============================================================================
+
+SECTION_KEYWORDS: Dict[SectionType, List[str]] = {
+    SectionType.SKILLS: [
+        "react", "vue", "angular", "javascript", "typescript", "python", "java",
+        "node", "spring", "django", "fastapi", "docker", "kubernetes", "aws",
+        "git", "mysql", "postgresql", "mongodb", "redis", "linux", "ci/cd",
+        "html", "css", "sass", "webpack", "jest", "graphql", "rest", "api",
+    ],
+    SectionType.REQUIREMENTS: [
+        "년 이상", "경력", "필수", "학사", "석사", "학위", "전공",
+        "years of experience", "required", "degree", "bachelor", "master",
+    ],
+    SectionType.PREFERRED: [
+        "우대", "있으면", "경험자", "가점", "preferred", "plus", "nice to have",
+    ],
+    SectionType.EXPERIENCE: [
+        "재직", "근무", "담당", "개발", "운영", "기여", "달성", "리드",
+    ],
+}
+
+
+def infer_section_from_content(content: str) -> Optional[SectionType]:
+    """
+    내용 기반으로 섹션 타입 추론
+
+    Args:
+        content: 청크 내용
+
+    Returns:
+        추론된 섹션 타입 또는 None
+    """
+    content_lower = content.lower()
+
+    # 키워드 매칭 점수 계산
+    scores: Dict[SectionType, int] = {}
+
+    for section_type, keywords in SECTION_KEYWORDS.items():
+        score = sum(1 for kw in keywords if kw.lower() in content_lower)
+        if score > 0:
+            scores[section_type] = score
+
+    if scores:
+        # 가장 높은 점수의 섹션 반환
+        return max(scores, key=scores.get)
+
+    return None
 
 
 # ============================================================================
@@ -144,17 +247,17 @@ def detect_section_type(
         else JD_SECTION_PATTERNS
     )
 
-    # 라인 정규화 (앞뒤 공백, 특수문자 제거)
+    # 라인 정규화 (앞뒤 공백 제거, 특수문자는 유지)
     cleaned_line = line.strip()
 
-    # 너무 긴 라인은 헤더가 아님
-    if len(cleaned_line) > 100:
+    # 빈 라인이거나 너무 긴 라인은 헤더가 아님
+    if not cleaned_line or len(cleaned_line) > 80:
         return None
 
     # 각 섹션 타입의 패턴과 매칭
     for section_type, pattern_list in patterns.items():
         for pattern in pattern_list:
-            if re.search(pattern, cleaned_line):
+            if re.search(pattern, cleaned_line, re.IGNORECASE):
                 return section_type
 
     return None
@@ -209,9 +312,16 @@ def split_into_sections(
             if current_content_lines:
                 content = "\n".join(current_content_lines).strip()
                 if content:  # 빈 섹션은 저장하지 않음
+                    # 내용 기반 섹션 추론 (unknown인 경우)
+                    final_type = current_section_type
+                    if final_type == SectionType.UNKNOWN:
+                        inferred = infer_section_from_content(content)
+                        if inferred:
+                            final_type = inferred
+
                     sections.append(
                         TextSection(
-                            section_type=current_section_type,
+                            section_type=final_type,
                             content=content,
                             start_line=current_start_line,
                             end_line=i - 1,
@@ -229,9 +339,15 @@ def split_into_sections(
     if current_content_lines:
         content = "\n".join(current_content_lines).strip()
         if content:
+            final_type = current_section_type
+            if final_type == SectionType.UNKNOWN:
+                inferred = infer_section_from_content(content)
+                if inferred:
+                    final_type = inferred
+
             sections.append(
                 TextSection(
-                    section_type=current_section_type,
+                    section_type=final_type,
                     content=content,
                     start_line=current_start_line,
                     end_line=len(lines) - 1,
@@ -408,11 +524,15 @@ def _chunk_simple(
 
     chunks: List[Document] = []
     for i, chunk_text in enumerate(chunk_texts):
+        # 내용 기반 섹션 추론
+        inferred_section = infer_section_from_content(chunk_text)
+        section_type = inferred_section.value if inferred_section else SectionType.UNKNOWN.value
+
         chunk_metadata = base_metadata.copy()
         chunk_metadata.update(
             {
                 "chunk_index": i,
-                "section_type": SectionType.UNKNOWN.value,
+                "section_type": section_type,
             }
         )
         chunks.append(
