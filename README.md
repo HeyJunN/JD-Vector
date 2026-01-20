@@ -152,8 +152,9 @@ pnpm dev:server
 - `DELETE /api/v1/analysis/documents/{file_id}` - 문서 삭제
 - `GET /api/v1/analysis/health` - 분석 서비스 헬스 체크
 
-### 로드맵 (Roadmap) - Phase 4 예정
-- `POST /api/v1/roadmap` - 로드맵 생성 (구현 예정)
+### 로드맵 (Roadmap)
+- `POST /api/v1/roadmap/generate` - 맞춤형 학습 로드맵 생성
+- `GET /api/v1/roadmap/health` - 로드맵 서비스 헬스 체크
 
 ## 개발 컨벤션
 
@@ -209,13 +210,26 @@ Conventional Commits 준수:
 - [x] 스킬 갭 분석 API (`/analysis/gap-analysis`)
 - [x] 건설적 피드백 생성 (강점, 개선점, 잠재력, 액션 아이템)
 
-### Phase 4: 로드맵 생성 및 콘텐츠 추천 (🚀 준비 완료)
+### Phase 4: 로드맵 생성 및 콘텐츠 추천 (✅ 완료)
 
-- [ ] LangChain Agent: AI 로드맵 생성
-- [ ] 맞춤형 학습 계획 (3개월 커리큘럼)
-- [ ] 추천 리소스 (강의, 문서, 프로젝트)
-- [ ] TodoChecklist 컴포넌트 (인터랙티브 로드맵)
-- [ ] RoadmapPage 완성
+- [x] GPT-4o mini 기반 AI 로드맵 생성
+- [x] 맞춤형 학습 계획 (4-12주 커리큘럼)
+- [x] 고퀄리티 한국어 리소스 매핑 (80+ 학습 리소스)
+  - 프론트엔드: React, TypeScript, Vue, Next.js, HTML, CSS 등 (30+ 리소스)
+  - 백엔드: Node.js, Express, FastAPI, Django, Python 등 (15+ 리소스)
+  - 데이터베이스: SQL, PostgreSQL, MongoDB, Redis (10+ 리소스)
+  - 도구/인프라: Git, Docker, AWS, Testing (10+ 리소스)
+  - 배포: Vercel, Netlify, Deployment (4+ 리소스)
+  - 커리어: Portfolio, Resume, Interview 가이드 (10+ 리소스)
+- [x] 프론트엔드-백엔드 브릿지 전략 (협업 지식 우선 학습)
+- [x] 등급별 로드맵 생성 전략 차별화 (D~S 등급별 맞춤 전략)
+- [x] 부족한 기술 70% 이상 비중 학습 계획
+- [x] 키워드 표준화 (프론트엔드 아이콘 매핑 최적화: 소문자, 공백 제거)
+- [x] 주차별 체크리스트 및 태스크 생성 (3-5개/주)
+- [x] 로드맵 생성 API 엔드포인트 (`POST /api/v1/roadmap/generate`)
+- [x] 리소스 메타데이터 (platform, difficulty, estimated_hours)
+- [ ] RoadmapPage 프론트엔드 구현 (Phase 5로 이동)
+- [ ] TodoChecklist 컴포넌트 구현 (Phase 5로 이동)
 
 ### Phase 5: 분석 결과 시각화
 
