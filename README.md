@@ -228,11 +228,37 @@ Conventional Commits 준수:
 - [x] 주차별 체크리스트 및 태스크 생성 (3-5개/주)
 - [x] 로드맵 생성 API 엔드포인트 (`POST /api/v1/roadmap/generate`)
 - [x] 리소스 메타데이터 (platform, difficulty, estimated_hours)
-- [ ] RoadmapPage 프론트엔드 구현 (Phase 5로 이동)
-- [ ] TodoChecklist 컴포넌트 구현 (Phase 5로 이동)
+- [x] RoadmapPage 프론트엔드 구현
+- [x] TodoChecklist 컴포넌트 구현
 
-### Phase 5: 분석 결과 시각화
+### Phase 5: 프론트엔드 시각화 및 로드맵 연동 (✅ 완료)
 
+**로드맵 페이지 구현:**
+- [x] TypeScript 타입 정의 (roadmap.types.ts)
+- [x] TechIcon 컴포넌트 (키워드 → 아이콘 자동 매핑, lucide-react 활용)
+- [x] PlatformIcon 컴포넌트 (플랫폼별 아이콘 표시)
+- [x] ProgressTracker 컴포넌트 (전체 및 주차별 진행률 시각화)
+- [x] RoadmapWeekCard 컴포넌트 (주차별 학습 계획 카드)
+  - 체크리스트 기능 (태스크 완료 토글)
+  - 난이도별 배지 (beginner/intermediate/advanced)
+  - 우선순위별 색상 코딩 (high/medium/low)
+  - 리소스 링크 (플랫폼, 예상 시간 표시)
+- [x] RoadmapPage 메인 페이지
+  - Axios를 통한 API 호출 (`POST /api/v1/roadmap/generate`)
+  - 로컬 상태 관리 (태스크 완료 상태 추적)
+  - 로딩 스켈레톤 UI
+  - 완료 축하 애니메이션
+  - 반응형 대시보드 레이아웃 (좌측 진행률, 우측 주차별 카드)
+
+**UX 강화:**
+- [x] 로딩 스피너 및 메시지
+- [x] 에러 처리 및 사용자 안내
+- [x] 실시간 진행률 업데이트
+- [x] 완료 시 축하 애니메이션 및 메시지
+- [x] Tailwind CSS 기반 현대적 UI 디자인
+- [x] 다크모드 지원
+
+**아직 남은 작업:**
 - [ ] RadarChart 컴포넌트 (Recharts)
 - [ ] MatchScore 컴포넌트
 - [ ] ResultPage 완성
