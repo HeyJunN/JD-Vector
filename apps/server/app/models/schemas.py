@@ -186,23 +186,69 @@ class AnalysisResponse(BaseModel):
 
 
 # ============================================================================
-# Roadmap Schemas (Phase 5용 준비)
+# Roadmap Schemas (Phase 4)
 # ============================================================================
 
 
-class RoadmapItem(BaseModel):
-    """로드맵 항목"""
+class LearningResource(BaseModel):
+    """학습 리소스"""
 
-    title: str = Field(..., description="할 일 제목")
-    description: str = Field(..., description="상세 설명")
-    priority: int = Field(..., ge=1, le=3, description="우선순위 (1:높음, 3:낮음)")
-    estimated_weeks: int = Field(..., description="예상 소요 주차")
-    category: str = Field(..., description="카테고리")
+    title: str = Field(..., description="리소스 제목")
+    url: str = Field(..., description="리소스 URL")
+    type: str = Field(..., description="리소스 타입 (documentation/tutorial/video/article/course)")
+    platform: str = Field(..., description="플랫폼 (YouTube/Inflearn/Docs/MDN/Official 등)")
+    difficulty: str = Field(..., description="난이도 (beginner/intermediate/advanced)")
+    description: Optional[str] = Field(None, description="리소스 설명")
+    estimated_hours: Optional[int] = Field(None, description="예상 학습 시간 (시간)")
+
+
+class RoadmapTask(BaseModel):
+    """로드맵 태스크 (체크리스트)"""
+
+    task: str = Field(..., description="할 일 내용")
+    completed: bool = Field(default=False, description="완료 여부")
+    priority: Optional[str] = Field(None, description="우선순위 (high/medium/low)")
+
+
+class RoadmapWeek(BaseModel):
+    """주차별 로드맵 항목"""
+
+    week_number: int = Field(..., ge=1, description="주차 번호")
+    title: str = Field(..., description="주차 제목")
+    duration: str = Field(..., description="소요 기간 (예: '1 week', '2 weeks')")
+    description: str = Field(..., description="주차 설명 (목표 및 학습 내용)")
+    keywords: List[str] = Field(default_factory=list, description="핵심 학습 키워드")
+    tasks: List[RoadmapTask] = Field(default_factory=list, description="체크리스트 (할 일 목록)")
+    resources: List[LearningResource] = Field(default_factory=list, description="추천 리소스 링크")
+
+
+class RoadmapGenerateRequest(BaseModel):
+    """로드맵 생성 요청"""
+
+    resume_id: UUID = Field(..., description="이력서 문서 ID (documents 테이블의 id)")
+    jd_id: UUID = Field(..., description="채용공고 문서 ID (documents 테이블의 id)")
+    target_weeks: Optional[int] = Field(
+        default=8,
+        ge=4,
+        le=12,
+        description="목표 주차 (4-12주, 기본값: 8주)",
+    )
+
+
+class RoadmapData(BaseModel):
+    """로드맵 데이터"""
+
+    total_weeks: int = Field(..., description="전체 학습 기간 (주)")
+    match_grade: str = Field(..., description="현재 매칭 등급 (S/A/B/C/D)")
+    target_grade: str = Field(..., description="목표 등급")
+    summary: str = Field(..., description="로드맵 요약 및 전략")
+    weekly_plan: List[RoadmapWeek] = Field(..., description="주차별 학습 계획")
+    key_improvement_areas: List[str] = Field(default_factory=list, description="핵심 개선 영역")
 
 
 class RoadmapResponse(BaseModel):
-    """로드맵 생성 응답 (Phase 5)"""
+    """로드맵 생성 응답"""
 
     success: bool = Field(..., description="성공 여부")
-    data: Optional[List[RoadmapItem]] = Field(None, description="로드맵 항목 리스트")
+    data: Optional[RoadmapData] = Field(None, description="로드맵 데이터")
     message: str = Field(..., description="응답 메시지")
