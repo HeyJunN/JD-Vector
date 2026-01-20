@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CheckCircle2, FileText, ArrowRight, Sparkles } from 'lucide-react';
+import { CheckCircle2, FileText, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { UploadResponseData } from '@/lib/api';
+import { analysisService } from '../services/analysisService';
 
 interface AnalysisPageState {
   resumeData: UploadResponseData;
@@ -15,6 +16,9 @@ export const AnalysisPage = () => {
   const navigate = useNavigate();
 
   const state = location.state as AnalysisPageState | null;
+
+  // 분석 로딩 상태
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // 데이터 유효성 검증 및 리다이렉트
   useEffect(() => {
@@ -31,6 +35,78 @@ export const AnalysisPage = () => {
   }
 
   const { resumeData, jdData } = state;
+
+  // AI 분석 시작 핸들러
+  const handleStartAnalysis = async () => {
+    setIsAnalyzing(true);
+
+    try {
+      // 1. 이력서와 JD의 document_id 조회
+      toast.loading('문서 벡터화 상태를 확인하는 중...', { id: 'check-status' });
+
+      const [resumeDoc, jdDoc] = await Promise.all([
+        analysisService.getDocumentStatus(resumeData.file_id),
+        analysisService.getDocumentStatus(jdData.file_id),
+      ]);
+
+      // 2. 벡터화 완료 확인
+      if (resumeDoc.embedding_status !== 'completed') {
+        toast.error('이력서 벡터화가 아직 진행 중입니다. 잠시 후 다시 시도해주세요.', {
+          id: 'check-status',
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+
+      if (jdDoc.embedding_status !== 'completed') {
+        toast.error('채용공고 벡터화가 아직 진행 중입니다. 잠시 후 다시 시도해주세요.', {
+          id: 'check-status',
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+
+      // 3. document_id 확인
+      if (!resumeDoc.document_id || !jdDoc.document_id) {
+        toast.error('문서 ID를 찾을 수 없습니다.', { id: 'check-status' });
+        setIsAnalyzing(false);
+        return;
+      }
+
+      toast.success('문서 준비 완료!', { id: 'check-status' });
+
+      // 4. 매칭 분석 수행
+      toast.loading('AI가 적합도를 분석하는 중...', { id: 'analysis' });
+
+      const analysisResult = await analysisService.analyzeMatch({
+        resume_id: resumeDoc.document_id,
+        jd_id: jdDoc.document_id,
+      });
+
+      if (!analysisResult.success) {
+        throw new Error(analysisResult.message || '분석에 실패했습니다.');
+      }
+
+      toast.success('분석 완료! 로드맵을 생성합니다...', { id: 'analysis' });
+
+      // 5. RoadmapPage로 이동 (쿼리 파라미터로 ID 전달)
+      navigate(
+        `/roadmap?resume_id=${resumeDoc.document_id}&jd_id=${jdDoc.document_id}&target_weeks=8`,
+        {
+          state: {
+            analysisResult: analysisResult.data,
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast.error(
+        error instanceof Error ? error.message : '분석 중 오류가 발생했습니다.',
+        { id: 'analysis' }
+      );
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950">

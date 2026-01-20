@@ -84,6 +84,7 @@ class MatchResponse(BaseModel):
 class DocumentStatusResponse(BaseModel):
     """문서 상태 응답"""
 
+    document_id: Optional[str] = None  # documents 테이블의 id
     file_id: str
     filename: Optional[str] = None
     file_type: Optional[str] = None
@@ -510,6 +511,7 @@ async def get_document_status(file_id: UUID) -> DocumentStatusResponse:
             )
 
         return DocumentStatusResponse(
+            document_id=str(stats.get("id")) if stats.get("id") else None,
             file_id=str(stats.get("file_id")),
             filename=stats.get("filename"),
             file_type=stats.get("file_type"),
