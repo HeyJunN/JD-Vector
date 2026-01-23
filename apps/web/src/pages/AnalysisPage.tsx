@@ -187,15 +187,19 @@ export const AnalysisPage = () => {
           </div>
 
           <button
-            onClick={() => {
-              // Phase 3에서 구현 예정
-              alert('Phase 3에서 RAG 파이프라인과 연결될 예정입니다.');
-            }}
-            className="group relative inline-flex items-center space-x-3 rounded-xl border border-slate-200 bg-slate-50 px-8 py-4 text-base font-semibold text-slate-950 shadow-lg shadow-slate-50/10 transition-all duration-200 hover:scale-[1.02] hover:border-white hover:bg-white hover:shadow-xl hover:shadow-slate-50/20 active:scale-[0.98]"
+            onClick={handleStartAnalysis}
+            disabled={isAnalyzing}
+            className="group relative inline-flex items-center space-x-3 rounded-xl border border-slate-200 bg-slate-50 px-8 py-4 text-base font-semibold text-slate-950 shadow-lg shadow-slate-50/10 transition-all duration-200 hover:scale-[1.02] hover:border-white hover:bg-white hover:shadow-xl hover:shadow-slate-50/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
           >
-            <Sparkles className="h-5 w-5" />
-            <span>AI 적합도 분석 시작하기</span>
-            <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+            {isAnalyzing ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Sparkles className="h-5 w-5" />
+            )}
+            <span>{isAnalyzing ? '분석 중...' : 'AI 적합도 분석 시작하기'}</span>
+            {!isAnalyzing && (
+              <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+            )}
 
             {/* Subtle outer glow on hover */}
             <div className="absolute inset-0 -z-10 rounded-xl bg-slate-50/20 opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-100" />

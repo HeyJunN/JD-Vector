@@ -5,6 +5,7 @@ import { FileUpload } from '@/components/upload/FileUpload';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { uploadResume, uploadJobDescription } from '@/lib/api';
+import { analysisService } from '@/services/analysisService';
 
 export const UploadPage = () => {
   const navigate = useNavigate();
@@ -78,7 +79,17 @@ export const UploadPage = () => {
         });
       }
 
-      // 3. 성공 - 분석 페이지로 이동
+      // 3. 벡터화 대기 (백그라운드에서 자동 실행)
+      setUploadStage('문서를 벡터화하고 있습니다...');
+      toastId = toast.loading('문서를 벡터화하고 있습니다...');
+
+      // 백그라운드 벡터화가 시작될 시간을 주기 위해 잠시 대기
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      toast.dismiss(toastId);
+      toast.success('벡터화가 진행 중입니다!');
+
+      // 4. 성공 - 분석 페이지로 이동
       toast.success('파일 업로드가 완료되었습니다! 분석을 시작합니다.');
 
       // React Router state로 데이터 전달 (URL 파라미터보다 안전)

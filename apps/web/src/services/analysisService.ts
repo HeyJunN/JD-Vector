@@ -65,7 +65,49 @@ export interface DocumentStatusResponse {
   created_at: string | null;
 }
 
+export interface IngestRequest {
+  file_id: string;
+  skip_if_exists?: boolean;
+}
+
+export interface IngestResponse {
+  success: boolean;
+  file_id: string;
+  document_id?: string;
+  chunk_count: number;
+  total_tokens: number;
+  estimated_cost_usd: number;
+  processing_time_ms: number;
+  message: string;
+  error?: string;
+}
+
 export const analysisService = {
+  /**
+   * 문서 벡터화
+   */
+  async ingestDocument(request: IngestRequest): Promise<IngestResponse> {
+    try {
+      const response = await axios.post<IngestResponse>(
+        `${API_BASE_URL}/api/v1/analysis/ingest`,
+        request,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          error.response?.data?.message || '문서 벡터화에 실패했습니다.'
+        );
+      }
+      throw error;
+    }
+  },
+
   /**
    * 문서 상태 조회 (file_id로 document_id 얻기)
    */
