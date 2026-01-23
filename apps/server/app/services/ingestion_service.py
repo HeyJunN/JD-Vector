@@ -10,6 +10,7 @@ Ingestion Service - 문서 벡터화 파이프라인
 """
 
 import logging
+import hashlib
 from typing import Dict, Any, Optional, List
 from uuid import UUID
 from dataclasses import dataclass
@@ -115,17 +116,40 @@ class IngestionService:
         file_type = FileTypeEnum(upload_result.file_type)
 
         try:
-            # 1. 이미 존재하는지 확인
+            # 1. 파일 내용 해시 계산 (중복 방지용)
+            content_hash = hashlib.sha256(
+                upload_result.cleaned_text.encode('utf-8')
+            ).hexdigest()
+            logger.info(f"Content hash for {file_id}: {content_hash[:16]}...")
+
+            # 2. 같은 내용의 문서가 이미 벡터화되었는지 확인 (토큰 절약)
             if skip_if_exists:
+                # 먼저 같은 file_id 확인
                 existing = self.vector_store.get_document_by_file_id(file_id)
                 if existing and existing.get("embedding_status") == "completed":
-                    logger.info(f"Document already ingested: {file_id}")
+                    logger.info(f"Document already ingested (same file_id): {file_id}")
                     return IngestionResult(
                         success=True,
                         file_id=file_id,
                         document_id=existing["id"],
                         chunk_count=existing.get("chunk_count", 0),
                         error="Already exists (skipped)",
+                    )
+
+                # 같은 내용의 다른 파일이 있는지 확인 (content_hash 기준)
+                existing_by_hash = self.vector_store.get_document_by_content_hash(content_hash)
+                if existing_by_hash and existing_by_hash.get("embedding_status") == "completed":
+                    logger.info(
+                        f"Same content already vectorized! Skipping to save tokens. "
+                        f"Original file_id: {existing_by_hash.get('file_id')}, "
+                        f"New file_id: {file_id}"
+                    )
+                    return IngestionResult(
+                        success=True,
+                        file_id=file_id,
+                        document_id=existing_by_hash["id"],
+                        chunk_count=existing_by_hash.get("chunk_count", 0),
+                        error=f"Same content already vectorized (skipped to save tokens)",
                     )
 
             # 2. 문서 상태를 processing으로 업데이트 (또는 새로 저장)
@@ -182,6 +206,7 @@ class IngestionService:
                 author=upload_result.metadata.author,
                 title=upload_result.metadata.title,
                 embedding_status="processing",
+                content_hash=content_hash,  # 중복 방지용 해시
             )
 
             chunk_records = create_chunk_records(file_id, embedded_chunks)
