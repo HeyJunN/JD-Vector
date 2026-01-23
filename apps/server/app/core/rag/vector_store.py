@@ -127,6 +127,7 @@ class DocumentRecord:
     author: Optional[str] = None
     title: Optional[str] = None
     embedding_status: str = "pending"
+    content_hash: Optional[str] = None  # 중복 방지용 해시
 
     def to_dict(self) -> Dict[str, Any]:
         """딕셔너리로 변환"""
@@ -144,6 +145,7 @@ class DocumentRecord:
             "author": self.author,
             "title": self.title,
             "embedding_status": self.embedding_status,
+            "content_hash": self.content_hash,
         }
 
     def to_dict_minimal(self) -> Dict[str, Any]:
@@ -421,6 +423,22 @@ class VectorStore:
 
         return self._execute_with_retry(f"get_document_by_file_id({file_id})", _get)
 
+    def get_document_by_content_hash(self, content_hash: str) -> Optional[Dict[str, Any]]:
+        """content_hash로 문서 조회 (중복 방지용)"""
+        def _get(client: Client):
+            result = (
+                client.table("documents")
+                .select("id, file_id, filename, file_type, embedding_status, chunk_count, word_count, char_count, page_count, language, content_hash, created_at")
+                .eq("content_hash", content_hash)
+                .execute()
+            )
+
+            if result.data:
+                return result.data[0]
+            return None
+
+        return self._execute_with_retry(f"get_document_by_content_hash({content_hash[:16]}...)", _get)
+
     def get_chunks_by_document_id(
         self,
         doc_id: UUID,
@@ -568,16 +586,40 @@ class VectorStore:
     # ------------------------------------------------------------------------
 
     def get_document_stats(self, file_id: UUID) -> Optional[Dict[str, Any]]:
-        """문서 통계 조회"""
+        """문서 통계 조회 (file_id 기준)"""
         def _get(client: Client):
-            result = client.rpc(
-                "get_document_stats",
-                {"target_file_id": str(file_id)},
-            ).execute()
+            # documents 테이블에서 직접 조회
+            doc_result = (
+                client.table("documents")
+                .select("id, file_id, filename, file_type, embedding_status, chunk_count, created_at")
+                .eq("file_id", str(file_id))
+                .execute()
+            )
 
-            if result.data:
-                return result.data[0]
-            return None
+            if not doc_result.data:
+                return None
+
+            doc = doc_result.data[0]
+
+            # 청크 수 계산 (더 정확한 값)
+            chunk_result = (
+                client.table("document_chunks")
+                .select("id", count="exact")
+                .eq("file_id", str(file_id))
+                .execute()
+            )
+
+            chunk_count = chunk_result.count if chunk_result.count else 0
+
+            return {
+                "id": doc["id"],
+                "file_id": doc["file_id"],
+                "filename": doc["filename"],
+                "file_type": doc["file_type"],
+                "embedding_status": doc["embedding_status"],
+                "chunk_count": chunk_count,
+                "created_at": doc["created_at"],
+            }
 
         return self._execute_with_retry(f"get_stats({file_id})", _get)
 

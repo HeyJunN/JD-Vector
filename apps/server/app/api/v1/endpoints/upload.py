@@ -66,7 +66,7 @@ def run_ingestion_background(upload_result: UploadResponseData) -> None:
         ingestion_service = get_ingestion_service()
         result: IngestionResult = ingestion_service.ingest_document(
             upload_result=upload_result,
-            skip_if_exists=False,  # 새 업로드이므로 항상 처리
+            skip_if_exists=True,  # 이미 벡터화된 문서는 스킵
         )
 
         if result.success:
@@ -257,12 +257,33 @@ async def upload_pdf(
         stats = get_upload_statistics(response_data)
         logger.info(f"Upload statistics: {stats}")
 
-        # 5. 백그라운드에서 벡터화 실행 (auto_vectorize가 True인 경우)
+        # 디버깅: auto_vectorize 파라미터 값 확인
+        logger.info(f"[DEBUG] auto_vectorize parameter value: {auto_vectorize} (type: {type(auto_vectorize)})")
+
+        # 5. 벡터화 실행 (임시로 동기식으로 변경)
         if auto_vectorize:
-            background_tasks.add_task(run_ingestion_background, response_data)
-            logger.info(f"Scheduled background ingestion for file_id: {response_data.file_id}")
-            vectorize_message = " Vectorization started in background."
+            logger.info(f"[UPLOAD] Starting SYNCHRONOUS ingestion for file_id: {response_data.file_id}")
+            try:
+                ingestion_service = get_ingestion_service()
+                result = ingestion_service.ingest_document(
+                    upload_result=response_data,
+                    skip_if_exists=True,
+                )
+
+                if result.success:
+                    logger.info(
+                        f"[UPLOAD] Ingestion completed: file_id={result.file_id}, "
+                        f"chunks={result.chunk_count}, time={result.processing_time_ms:.0f}ms"
+                    )
+                    vectorize_message = " Vectorization completed successfully."
+                else:
+                    logger.error(f"[UPLOAD] Ingestion failed: {result.error}")
+                    vectorize_message = f" Vectorization failed: {result.error}"
+            except Exception as e:
+                logger.error(f"[UPLOAD] Ingestion error: {e}", exc_info=True)
+                vectorize_message = f" Vectorization error: {str(e)}"
         else:
+            logger.info(f"[UPLOAD] auto_vectorize=False, skipping ingestion for file_id: {response_data.file_id}")
             vectorize_message = ""
 
         # 6. 성공 응답 반환 (사용자는 즉시 응답을 받음)
