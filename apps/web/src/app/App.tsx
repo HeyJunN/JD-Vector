@@ -4,11 +4,11 @@ import './App.css';
 import Header from '@/components/layout/Header';
 import UploadPage from '@/pages/UploadPage';
 import AnalysisPage from '@/pages/AnalysisPage';
+import RoadmapPage from '@/pages/RoadmapPage';
 
 // Pages (will be implemented later)
 // import HomePage from '@/pages/HomePage';
 // import ResultPage from '@/pages/ResultPage';
-// import RoadmapPage from '@/pages/RoadmapPage';
 // import NotFoundPage from '@/pages/NotFoundPage';
 
 function App() {
@@ -19,9 +19,9 @@ function App() {
         <Route path="/" element={<UploadPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="/roadmap" element={<RoadmapPage />} />
         {/* Additional routes will be added here */}
         {/* <Route path="/result" element={<ResultPage />} /> */}
-        {/* <Route path="/roadmap" element={<RoadmapPage />} /> */}
       </Routes>
 
       {/* Toast Notifications - Dark Mode Optimized */}
