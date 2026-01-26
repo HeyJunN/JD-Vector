@@ -115,18 +115,25 @@ class IngestionService:
         file_id = upload_result.file_id
         file_type = FileTypeEnum(upload_result.file_type)
 
+        print(f"[INGEST] Starting ingestion for file_id: {file_id}, file_type: {file_type}")
+
         try:
             # 1. 파일 내용 해시 계산 (중복 방지용)
+            print(f"[INGEST] Calculating content hash for file_id: {file_id}")
+            print(f"[INGEST] Text length: {len(upload_result.cleaned_text)} characters")
             content_hash = hashlib.sha256(
                 upload_result.cleaned_text.encode('utf-8')
             ).hexdigest()
+            print(f"[INGEST] Content hash calculated: {content_hash[:16]}...")
             logger.info(f"Content hash for {file_id}: {content_hash[:16]}...")
 
             # 2. 같은 내용의 문서가 이미 벡터화되었는지 확인 (토큰 절약)
             if skip_if_exists:
+                print(f"[INGEST] Checking if document already exists for file_id: {file_id}")
                 # 먼저 같은 file_id 확인
                 existing = self.vector_store.get_document_by_file_id(file_id)
                 if existing and existing.get("embedding_status") == "completed":
+                    print(f"[INGEST] Document already ingested (same file_id): {file_id}")
                     logger.info(f"Document already ingested (same file_id): {file_id}")
                     return IngestionResult(
                         success=True,
@@ -135,22 +142,35 @@ class IngestionService:
                         chunk_count=existing.get("chunk_count", 0),
                         error="Already exists (skipped)",
                     )
+                print(f"[INGEST] No existing document found for file_id: {file_id}, proceeding with ingestion")
 
                 # 같은 내용의 다른 파일이 있는지 확인 (content_hash 기준)
-                existing_by_hash = self.vector_store.get_document_by_content_hash(content_hash)
-                if existing_by_hash and existing_by_hash.get("embedding_status") == "completed":
-                    logger.info(
-                        f"Same content already vectorized! Skipping to save tokens. "
-                        f"Original file_id: {existing_by_hash.get('file_id')}, "
-                        f"New file_id: {file_id}"
-                    )
-                    return IngestionResult(
-                        success=True,
-                        file_id=file_id,
-                        document_id=existing_by_hash["id"],
-                        chunk_count=existing_by_hash.get("chunk_count", 0),
-                        error=f"Same content already vectorized (skipped to save tokens)",
-                    )
+                # TEMPORARY FIX: content_hash 중복 체크 비활성화 (file_id 불일치 문제 해결)
+                print(f"[INGEST] Skipping content_hash duplicate check (disabled)")
+                # print(f"[INGEST] Checking content_hash: {content_hash[:16]}...")
+                # existing_by_hash = self.vector_store.get_document_by_content_hash(content_hash)
+                # if existing_by_hash:
+                #     print(f"[INGEST] Found existing document with same content_hash!")
+                #     print(f"[INGEST] Existing: file_id={existing_by_hash.get('file_id')}, status={existing_by_hash.get('embedding_status')}")
+                # if existing_by_hash and existing_by_hash.get("embedding_status") == "completed":
+                #     print(
+                #         f"[INGEST] Same content already vectorized! Skipping to save tokens. "
+                #         f"Original file_id: {existing_by_hash.get('file_id')}, "
+                #         f"New file_id: {file_id}"
+                #     )
+                #     logger.info(
+                #         f"Same content already vectorized! Skipping to save tokens. "
+                #         f"Original file_id: {existing_by_hash.get('file_id')}, "
+                #         f"New file_id: {file_id}"
+                #     )
+                #     return IngestionResult(
+                #         success=True,
+                #         file_id=file_id,
+                #         document_id=existing_by_hash["id"],
+                #         chunk_count=existing_by_hash.get("chunk_count", 0),
+                #         error=f"Same content already vectorized (skipped to save tokens)",
+                #     )
+                # print(f"[INGEST] No duplicate content found, proceeding with full ingestion")
 
             # 2. 문서 상태를 processing으로 업데이트 (또는 새로 저장)
             logger.info(f"Starting ingestion for: {file_id}")
@@ -170,6 +190,7 @@ class IngestionService:
             )
 
             # 4. 청킹
+            print(f"[INGEST] Chunking document: {file_id}")
             logger.info(f"Chunking document: {file_id}")
             chunks = chunk_document(
                 document=document,
@@ -180,16 +201,20 @@ class IngestionService:
             chunks = add_token_counts(chunks)
 
             chunk_summary = get_chunk_summary(chunks)
+            print(f"[INGEST] Chunking complete: {chunk_summary['total_chunks']} chunks")
             logger.info(f"Chunking complete: {chunk_summary['total_chunks']} chunks")
 
             # 5. 비용 추정 및 로깅
             texts = [c.page_content for c in chunks]
             cost_estimate = estimate_embedding_cost(texts)
+            print(f"[INGEST] Estimated embedding cost: ${cost_estimate['estimated_cost_usd']:.6f}")
             logger.info(f"Estimated embedding cost: ${cost_estimate['estimated_cost_usd']:.6f}")
 
             # 6. 임베딩 생성
+            print(f"[INGEST] Generating embeddings for {len(chunks)} chunks")
             logger.info(f"Generating embeddings for {len(chunks)} chunks")
             embedded_chunks = embed_documents(chunks, self.embedding_client)
+            print(f"[INGEST] Embeddings generated successfully")
 
             # 7. 레코드 생성
             doc_record = DocumentRecord(
@@ -212,11 +237,13 @@ class IngestionService:
             chunk_records = create_chunk_records(file_id, embedded_chunks)
 
             # 8. Supabase에 저장
+            print(f"[INGEST] Saving to Supabase: {file_id}")
             logger.info(f"Saving to Supabase: {file_id}")
             save_result = self.vector_store.save_document_with_chunks(
                 document=doc_record,
                 chunks=chunk_records,
             )
+            print(f"[INGEST] Save result: {save_result}")
 
             # 9. 결과 반환
             processing_time = (time.time() - start_time) * 1000
@@ -235,6 +262,9 @@ class IngestionService:
             return result
 
         except Exception as e:
+            print(f"[INGEST] ERROR: Ingestion failed for {file_id}: {e}")
+            import traceback
+            traceback.print_exc()
             logger.error(f"Ingestion failed for {file_id}: {e}", exc_info=True)
 
             # 상태를 failed로 업데이트

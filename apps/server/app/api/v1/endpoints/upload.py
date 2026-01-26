@@ -258,32 +258,40 @@ async def upload_pdf(
         logger.info(f"Upload statistics: {stats}")
 
         # 디버깅: auto_vectorize 파라미터 값 확인
-        logger.info(f"[DEBUG] auto_vectorize parameter value: {auto_vectorize} (type: {type(auto_vectorize)})")
+        print(f"[DEBUG] auto_vectorize parameter value: {auto_vectorize} (type: {type(auto_vectorize)})")
+        print(f"[DEBUG] file_id: {response_data.file_id}, filename: {response_data.filename}")
 
         # 5. 벡터화 실행 (임시로 동기식으로 변경)
         if auto_vectorize:
-            logger.info(f"[UPLOAD] Starting SYNCHRONOUS ingestion for file_id: {response_data.file_id}")
+            print(f"[UPLOAD] Starting SYNCHRONOUS ingestion for file_id: {response_data.file_id}")
             try:
                 ingestion_service = get_ingestion_service()
+                print(f"[UPLOAD] Calling ingest_document for file_id: {response_data.file_id}")
+
                 result = ingestion_service.ingest_document(
                     upload_result=response_data,
                     skip_if_exists=True,
                 )
 
+                print(f"[UPLOAD] Ingestion result: success={result.success}, document_id={result.document_id}")
+
                 if result.success:
-                    logger.info(
+                    print(
                         f"[UPLOAD] Ingestion completed: file_id={result.file_id}, "
+                        f"document_id={result.document_id}, "
                         f"chunks={result.chunk_count}, time={result.processing_time_ms:.0f}ms"
                     )
-                    vectorize_message = " Vectorization completed successfully."
+                    vectorize_message = f" Vectorization completed (document_id: {result.document_id})."
                 else:
-                    logger.error(f"[UPLOAD] Ingestion failed: {result.error}")
+                    print(f"[UPLOAD] Ingestion failed: {result.error}")
                     vectorize_message = f" Vectorization failed: {result.error}"
             except Exception as e:
-                logger.error(f"[UPLOAD] Ingestion error: {e}", exc_info=True)
+                print(f"[UPLOAD] Ingestion error: {e}")
+                import traceback
+                traceback.print_exc()
                 vectorize_message = f" Vectorization error: {str(e)}"
         else:
-            logger.info(f"[UPLOAD] auto_vectorize=False, skipping ingestion for file_id: {response_data.file_id}")
+            print(f"[UPLOAD] auto_vectorize=False, skipping ingestion for file_id: {response_data.file_id}")
             vectorize_message = ""
 
         # 6. 성공 응답 반환 (사용자는 즉시 응답을 받음)

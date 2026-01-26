@@ -588,6 +588,8 @@ class VectorStore:
     def get_document_stats(self, file_id: UUID) -> Optional[Dict[str, Any]]:
         """문서 통계 조회 (file_id 기준)"""
         def _get(client: Client):
+            logger.debug(f"Looking up document with file_id: {file_id}")
+
             # documents 테이블에서 직접 조회
             doc_result = (
                 client.table("documents")
@@ -597,6 +599,7 @@ class VectorStore:
             )
 
             if not doc_result.data:
+                logger.warning(f"No document found in documents table for file_id: {file_id}")
                 return None
 
             doc = doc_result.data[0]
