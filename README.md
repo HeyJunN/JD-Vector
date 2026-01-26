@@ -258,11 +258,14 @@ Conventional Commits 준수:
 - [x] Tailwind CSS 기반 현대적 UI 디자인
 - [x] 다크모드 지원
 
-**아직 남은 작업:**
-- [ ] RadarChart 컴포넌트 (Recharts)
-- [ ] MatchScore 컴포넌트
-- [ ] ResultPage 완성
-- [ ] 피드백 UI (강점/약점/잠재력 시각화)
+**분석 결과 시각화:**
+- [x] MatchScore 컴포넌트 (원형 프로그레스 바, 등급별 색상)
+- [x] CompetencyChart 컴포넌트 (Recharts Radar Chart, 역량 비교)
+- [x] FeedbackSection 컴포넌트 (강점/약점/잠재력/실행계획 시각화)
+- [x] ResultPage 완성 (모든 컴포넌트 통합)
+- [x] Framer Motion 애니메이션 적용
+- [x] App.tsx 라우팅 연동
+- [x] AnalysisPage → ResultPage → RoadmapPage 플로우 구성
 
 ### Phase 6: 배포 및 최적화
 

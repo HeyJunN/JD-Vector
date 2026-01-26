@@ -87,17 +87,14 @@ export const AnalysisPage = () => {
         throw new Error(analysisResult.message || '분석에 실패했습니다.');
       }
 
-      toast.success('분석 완료! 로드맵을 생성합니다...', { id: 'analysis' });
+      toast.success('분석 완료!', { id: 'analysis' });
 
-      // 5. RoadmapPage로 이동 (쿼리 파라미터로 ID 전달)
-      navigate(
-        `/roadmap?resume_id=${resumeDoc.document_id}&jd_id=${jdDoc.document_id}&target_weeks=8`,
-        {
-          state: {
-            analysisResult: analysisResult.data,
-          },
-        }
-      );
+      // 5. ResultPage로 이동 (분석 결과 시각화)
+      navigate('/result', {
+        state: {
+          analysisResult: analysisResult.data,
+        },
+      });
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(
