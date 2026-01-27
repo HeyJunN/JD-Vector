@@ -297,10 +297,14 @@ async def analyze_match(request: MatchRequest) -> MatchResponse:
             jd_text=jd_text,
         )
 
-        # 4. 응답 구성
+        # 4. 응답 구성 (document_id 포함)
+        response_data = match_result.to_dict()
+        response_data["resume_document_id"] = str(request.resume_id)
+        response_data["jd_document_id"] = str(request.jd_id)
+
         return MatchResponse(
             success=True,
-            data=match_result.to_dict(),
+            data=response_data,
             message="Match analysis completed successfully",
         )
 
