@@ -79,9 +79,16 @@ export const ResultPage = () => {
 
   // 로드맵 페이지로 이동
   const handleViewRoadmap = () => {
+    console.log('🚀 Roadmap 이동:', {
+      resume_file_id: analysisData.resume_file_id,
+      jd_file_id: analysisData.jd_file_id,
+      resume_doc_id: analysisData.resume_document_id,
+      jd_doc_id: analysisData.jd_document_id,
+    });
+
     setIsLoading(true);
     navigate(
-      `/roadmap?resume_id=${analysisData.resume_file_id}&jd_id=${analysisData.jd_file_id}&target_weeks=8`,
+      `/roadmap?resume_id=${analysisData.resume_document_id}&jd_id=${analysisData.jd_document_id}&target_weeks=8`,
       {
         state: {
           analysisResult: analysisData,
