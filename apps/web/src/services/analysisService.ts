@@ -16,6 +16,8 @@ export interface MatchResponse {
   data: {
     resume_file_id: string;
     jd_file_id: string;
+    resume_document_id: string;
+    jd_document_id: string;
     overall_similarity: number;
     match_score: number;
     match_grade: 'S' | 'A' | 'B' | 'C' | 'D';

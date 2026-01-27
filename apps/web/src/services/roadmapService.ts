@@ -20,6 +20,7 @@ export const roadmapService = {
           headers: {
             'Content-Type': 'application/json',
           },
+          timeout: 120000, // 120초 (2분) 타임아웃 설정 - 로드맵 생성은 시간이 오래 걸림
         }
       );
 
