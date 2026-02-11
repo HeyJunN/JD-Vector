@@ -23,7 +23,6 @@ import {
   Layout,
   Palette,
   Workflow,
-  Settings,
   BookOpen,
   Video,
   GraduationCap,

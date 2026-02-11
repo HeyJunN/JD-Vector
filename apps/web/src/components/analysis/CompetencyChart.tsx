@@ -116,10 +116,8 @@ export const CompetencyChart: React.FC<CompetencyChartProps> = ({
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
-              allowDataOverflow={false}
               tick={{ fill: '#64748b', fontSize: 11 }}
               tickCount={6}
-              ticks={[0, 20, 40, 60, 80, 100]}
             />
 
             {/* 목표 수준 (파란색) - 먼저 렌더링하여 뒤에 배치 */}
