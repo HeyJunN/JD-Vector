@@ -1,0 +1,40 @@
+# Fly.io 배포 설정
+app = "jd-vector-api"
+primary_region = "nrt" # Tokyo (가장 가까운 리전)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ENVIRONMENT = "production"
+  PORT = "8080"
+  PYTHONUNBUFFERED = "1"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  # 헬스체크 설정 (Array of tables 형식)
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+# 배포 시 자동으로 생성될 secrets:
+# OPENAI_API_KEY
+# SUPABASE_URL
+# SUPABASE_KEY
+# SUPABASE_ANON_KEY
+# DATABASE_URL
+# ALLOWED_ORIGINS_CSV (쉼표로 구분된 origin 목록)
