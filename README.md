@@ -1,17 +1,36 @@
 # JD-Vector
 
-AI 기반 직무 적합도 분석 및 커리어 로드맵 서비스
+**AI 기반 직무 적합도 분석 및 맞춤형 커리어 로드맵 서비스**
 
-특정 채용 공고와 지원자가 지닌 기술 스택 간의 간극을 데이터로 분석하고, 최적의 학습 로드맵을 제시합니다.
+RAG(Retrieval-Augmented Generation) 파이프라인을 활용하여 채용 공고(JD)와 지원자 이력서 간의 스킬 갭을 정밀 분석하고, 개인화된 8주 학습 커리큘럼을 자동 생성합니다.
 
 ## 프로젝트 개요
 
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS
-- **Backend**: FastAPI + LangChain + Python 3.11
-- **Database**: Supabase (PostgreSQL + pgvector)
-- **AI/LLM**: OpenAI GPT-4o mini, text-embedding-3-small
-- **Utilities**: tenacity (재시도 로직), tiktoken (토큰 계산)
+### 🎯 핵심 가치
+- **데이터 정합성**: Vector DB와 연동된 `document_id` 기반 아키텍처로 파일-벡터 간 일관성 보장
+- **AI 기반 분석**: GPT-4o mini와 임베딩 모델을 활용한 섹션별 역량 매칭 및 피드백 생성
+- **실행 가능한 로드맵**: 부족 역량 70% 이상 집중 학습 + 80개 이상의 큐레이션된 한국어 리소스 제공
+
+### 🛠️ 기술 스택
+
+#### Frontend
+- **Framework**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS (Glassmorphism + Slate-950 기반 다크 테마)
+- **UI Components**: Lucide React (아이콘), Recharts (데이터 시각화), Framer Motion (애니메이션)
+- **HTTP Client**: Axios (타임아웃 최적화: 120초)
+- **State Management**: React Hooks (로컬 상태)
+
+#### Backend
+- **Framework**: FastAPI (Python 3.11) + Uvicorn (ASGI 서버)
+- **Dependency Management**: Poetry
+- **AI/LLM**: LangChain + OpenAI (GPT-4o mini, text-embedding-3-small)
+- **Vector Database**: Supabase (PostgreSQL + pgvector)
+- **Utilities**: tenacity (재시도 로직), tiktoken (토큰 계산), PyPDFLoader (PDF 파싱)
+
+#### Infrastructure
 - **배포**: Vercel (Frontend), Fly.io (Backend)
+- **데이터베이스**: Supabase (Vector Store + 파일 메타데이터)
+- **CI/CD**: GitHub Actions (예정)
 
 ## 프로젝트 구조
 
@@ -99,38 +118,105 @@ pnpm dev:server
 
 ## 핵심 기능
 
-### 1. 멀티 소스 데이터 업로드
+### 1. 🔄 Document ID 기반 RAG 파이프라인
 
-- 이력서 PDF 및 프로젝트 경험 입력
-- 채용 공고(JD) 텍스트/PDF 업로드
+**데이터 정합성 보장:**
+- 단순 `file_id`가 아닌 **Vector DB 연동 `document_id`** 사용
+- Supabase pgvector와 완벽한 동기화로 데이터 불일치 방지
+- API 422 에러 원천 차단 (파일-벡터 매핑 무결성)
 
-### 2. RAG 기반 분석
+**자동 벡터화:**
+- PDF 업로드 시 BackgroundTasks를 통한 자동 임베딩 생성
+- OpenAI text-embedding-3-small (1536차원) 활용
+- tenacity 기반 재시도 로직으로 안정성 확보
 
-- LangChain을 활용한 핵심 기술 스택 추출
-- 벡터 유사도(Cosine Similarity) 계산
-- 역량별 매칭도 분석
+### 2. 🎯 섹션별 스킬 갭 분석
 
-### 3. AI 로드맵 생성
+**정밀 매칭 알고리즘:**
+- 이력서와 JD를 섹션별로 분류 (기술 스택, 경험, 자격 요건 등)
+- 가중치 기반 코사인 유사도 계산
+- 유사 기술 스택 가산점 (React ↔ Next.js, FastAPI ↔ Django)
 
-- 부족한 역량 보완을 위한 학습 계획 제안
-- 구체적이고 실행 가능한 프로젝트 기능 추가 가이드
+**AI 피드백 생성:**
+- 강점(Strengths), 개선점(Weaknesses), 잠재력(Potential) 분석
+- 실행 가능한 액션 아이템 제안
+- GPT-4o mini 기반 건설적 피드백
 
-### 4. 시각화
+### 3. 📚 맞춤형 8주 학습 로드맵
 
-- Radar Chart로 역량 오각형 표시
-- Match Score 및 등급 표시
-- 인터랙티브 로드맵 체크리스트
+**개인화된 커리큘럼:**
+- 스킬 갭 70% 이상 비중으로 부족 역량 집중 학습
+- 등급별 차별화된 전략 (D → S 등급까지 맞춤 설계)
+- 주차별 3-5개 태스크 + 체크리스트 제공
+
+**큐레이션된 학습 리소스:**
+- 80개 이상의 한국어 우선 리소스 매핑
+- 난이도별 분류 (초급/중급/고급)
+- 플랫폼별 아이콘 (YouTube, 노마드코더, 인프런, MDN 등)
+
+**네트워크 최적화:**
+- AI 생성 시간을 고려한 **120초 타임아웃** 설정
+- 대용량 요청 처리 안정성 확보
+
+### 4. 🎨 현대적 UI/UX
+
+**Unified Dark Mode:**
+- Slate-950 기반 일관된 다크 테마
+- ResultPage → RoadmapPage 전체 적용
+
+**Glassmorphism Design:**
+- 그라데이션 배경 (`from-slate-900/90 to-slate-950/90`)
+- Backdrop blur 효과로 깊이감 표현
+- 네온 효과 진행률 바 (`shadow-lg shadow-blue-500/20`)
+
+**한국어 로컬라이제이션:**
+- 영문 카테고리 자동 매핑 (`preferred` → `우대 사항`, `experience` → `경력/경험`)
+- 카테고리별 색상 코딩 + Lucide React 아이콘 조합
+- 사용자 친화적 UX
+
+**인터랙티브 시각화:**
+- Recharts Radar Chart (역량 5각형 비교)
+- 원형 Match Score 프로그레스 바
+- 실시간 태스크 완료 추적
 
 ## 데이터 흐름
 
-1. **Frontend**: 파일 업로드 (FormData)
-2. **Backend**: PDF 텍스트 추출 (PyPDFLoader/pdfplumber)
-3. **임베딩 생성**: OpenAI text-embedding-3-small (1536차원)
-4. **벡터 저장**: Supabase pgvector
-5. **유사도 계산**: scikit-learn cosine_similarity
-6. **LLM 분석**: GPT-4o mini (기술 스택 추출, 간극 분석)
-7. **로드맵 생성**: AI 에이전트 (3개월 학습 계획)
-8. **시각화**: Recharts Radar Chart, Match Score
+### 전체 아키텍처
+```
+1. Frontend (React)
+   └─> 파일 업로드 (FormData)
+       └─> POST /api/v1/upload
+           └─> Backend (FastAPI)
+               ├─> PDF 텍스트 추출 (PyPDFLoader)
+               ├─> 임베딩 생성 (OpenAI text-embedding-3-small, 1536차원)
+               └─> Supabase Vector Store (document_id 기반)
+                   └─> pgvector RPC 함수 (코사인 유사도 계산)
+
+2. 매칭 분석
+   └─> POST /api/v1/analysis/match (resume_document_id + jd_document_id)
+       └─> Backend
+           ├─> 벡터 검색 (Supabase RPC)
+           ├─> 섹션별 매칭 점수 계산 (가중치 적용)
+           ├─> 유사 기술 스택 가산점 (React ↔ Next.js 등)
+           └─> GPT-4o mini 피드백 생성
+               └─> ResultPage 시각화 (Radar Chart, Match Score)
+
+3. 로드맵 생성
+   └─> POST /api/v1/roadmap/generate (resume_id + jd_id, 타임아웃: 120초)
+       └─> Backend
+           ├─> 스킬 갭 분석
+           ├─> GPT-4o mini 기반 8주 커리큘럼 생성
+           ├─> 한국어 리소스 매핑 (80+ 리소스)
+           └─> RoadmapPage 렌더링
+               ├─> 주차별 카드 (체크리스트, 진행률 바)
+               └─> ProgressTracker (실시간 완료율)
+```
+
+### 주요 최적화
+- **재시도 로직**: tenacity를 통한 임베딩 생성 안정화
+- **백그라운드 처리**: FastAPI BackgroundTasks로 자동 벡터화
+- **타임아웃 관리**: Axios 120초 설정으로 AI 생성 대기 시간 확보
+- **데이터 정합성**: document_id 기반 파일-벡터 일대일 매핑
 
 ## API 엔드포인트
 
@@ -146,6 +232,8 @@ pnpm dev:server
 ### 분석 (Analysis)
 - `POST /api/v1/analysis/ingest` - 문서 벡터화 (수동)
 - `POST /api/v1/analysis/match` - 이력서-JD 매칭 분석
+  - **Request Body**: `{ resume_document_id, jd_document_id }` ⚠️ `document_id` 필수
+  - **Response**: 매칭 점수, 등급, 섹션별 점수, 유사 기술 매칭, AI 피드백
 - `POST /api/v1/analysis/gap-analysis` - 스킬 갭 분석 (피드백 포함)
 - `GET /api/v1/analysis/documents` - 벡터화된 문서 목록 조회
 - `GET /api/v1/analysis/documents/{file_id}` - 문서 상태 조회
@@ -153,8 +241,60 @@ pnpm dev:server
 - `GET /api/v1/analysis/health` - 분석 서비스 헬스 체크
 
 ### 로드맵 (Roadmap)
-- `POST /api/v1/roadmap/generate` - 맞춤형 학습 로드맵 생성
+- `POST /api/v1/roadmap/generate` - 맞춤형 학습 로드맵 생성 (타임아웃: 120초)
+  - **Request Body**: `{ resume_id: document_id, jd_id: document_id, target_weeks: 8 }`
+  - **Response**: 8주 커리큘럼, 주차별 태스크, 큐레이션된 리소스, 진행률 추적 데이터
 - `GET /api/v1/roadmap/health` - 로드맵 서비스 헬스 체크
+
+## 문제 해결 (Troubleshooting)
+
+### 422 Unprocessable Entity 에러
+
+**증상:**
+```
+POST /api/v1/analysis/match 요청 시 422 에러 발생
+```
+
+**원인:**
+- 백엔드가 `document_id` (Vector DB 연동 ID)를 기대하는데, 프론트엔드가 `file_id` 전송
+- Supabase pgvector에서 document를 찾지 못해 매칭 실패
+
+**해결 방법:**
+1. **Backend 응답 구조 확인:**
+   - `POST /api/v1/upload` 응답에 `document_id` 포함 확인
+   - 응답 예시:
+   ```json
+   {
+     "file_id": "uuid-1234",
+     "document_id": "doc-uuid-5678",  // ⚠️ 이 값 사용
+     "text": "..."
+   }
+   ```
+
+2. **Frontend 수정:**
+   - `analysisService.ts`에서 `document_id` 사용
+   - `ResultPage.tsx`에서 `resume_document_id`, `jd_document_id` 전달
+   ```typescript
+   navigate(`/roadmap?resume_id=${data.resume_document_id}&jd_id=${data.jd_document_id}`)
+   ```
+
+3. **데이터 흐름 검증:**
+   - AnalysisPage → 업로드 시 `document_id` 저장
+   - ResultPage → API 호출 시 `document_id` 사용
+   - RoadmapPage → URL 파라미터로 `document_id` 전달
+
+### 로드맵 생성 타임아웃
+
+**증상:**
+```
+POST /api/v1/roadmap/generate 요청 시 타임아웃 발생
+```
+
+**해결 방법:**
+- Axios 타임아웃 120초로 설정 (AI 생성 대기 시간 확보)
+```typescript
+axios.post('/api/v1/roadmap/generate', data, { timeout: 120000 })
+```
 
 ## 개발 컨벤션
 
@@ -244,7 +384,7 @@ Conventional Commits 준수:
   - 우선순위별 색상 코딩 (high/medium/low)
   - 리소스 링크 (플랫폼, 예상 시간 표시)
 - [x] RoadmapPage 메인 페이지
-  - Axios를 통한 API 호출 (`POST /api/v1/roadmap/generate`)
+  - Axios를 통한 API 호출 (`POST /api/v1/roadmap/generate`, 타임아웃: 120초)
   - 로컬 상태 관리 (태스크 완료 상태 추적)
   - 로딩 스켈레톤 UI
   - 완료 축하 애니메이션
@@ -256,7 +396,10 @@ Conventional Commits 준수:
 - [x] 실시간 진행률 업데이트
 - [x] 완료 시 축하 애니메이션 및 메시지
 - [x] Tailwind CSS 기반 현대적 UI 디자인
-- [x] 다크모드 지원
+- [x] **Unified Dark Mode (Slate-950 기반)**
+  - ResultPage & RoadmapPage 일관된 다크 테마
+  - Glassmorphism 효과 (`bg-gradient-to-br from-slate-900/90 to-slate-950/90`)
+  - Backdrop blur 및 네온 진행률 바 (`shadow-lg shadow-blue-500/20`)
 
 **분석 결과 시각화:**
 - [x] MatchScore 컴포넌트 (원형 프로그레스 바, 등급별 색상)
@@ -267,12 +410,33 @@ Conventional Commits 준수:
 - [x] App.tsx 라우팅 연동
 - [x] AnalysisPage → ResultPage → RoadmapPage 플로우 구성
 
-### Phase 6: 배포 및 최적화
+**한국어 로컬라이제이션:**
+- [x] `labelMapper.ts` 유틸리티 구현 (영문 → 한글 자동 매핑)
+- [x] 카테고리 배지 한글화 (`preferred` → `우대 사항`, `experience` → `경력/경험`)
+- [x] 카테고리별 색상 + 아이콘 조합 (CheckCircle, Star, Briefcase, Zap, Code)
+- [x] ResultPage & RoadmapPage 일관된 용어 사용
+
+**데이터 정합성 강화:**
+- [x] `file_id` → `document_id` 전환으로 422 에러 해결
+- [x] Vector DB 연동 ID 기반 아키텍처
+- [x] AnalysisPage, ResultPage, RoadmapPage 전체 `document_id` 사용
+
+### Phase 6: 배포 및 최적화 (🚀 진행 중)
 
 - [ ] Vercel 배포 (Frontend)
 - [ ] Fly.io 배포 (Backend)
 - [ ] 성능 최적화
+  - [ ] React.lazy를 통한 코드 스플리팅
+  - [ ] 이미지 최적화 (WebP 변환)
+  - [ ] API 응답 캐싱 전략
 - [ ] Supabase Storage 연동 (파일 영구 저장)
+- [ ] 보안 강화
+  - [ ] API Rate Limiting
+  - [ ] CORS 정책 최적화
+  - [ ] 환경 변수 보안 검증
+- [ ] 모니터링 및 로깅
+  - [ ] Sentry 연동 (에러 추적)
+  - [ ] Analytics 통합 (사용자 행동 분석)
 
 ## 라이선스
 
