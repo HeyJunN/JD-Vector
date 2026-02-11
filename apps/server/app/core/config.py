@@ -21,10 +21,32 @@ class Settings(BaseSettings):
 
     # API
     API_V1_PREFIX: str = "/api/v1"
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-    ]
+
+    # CORS - 환경 변수로 유연하게 설정
+    ALLOWED_ORIGINS_CSV: str = "http://localhost:3000,http://localhost:5173"
+
+    @property
+    def ALLOWED_ORIGINS(self) -> List[str]:
+        """
+        쉼표로 구분된 문자열을 리스트로 변환
+        예: "https://app.vercel.app,https://example.com" -> ["https://app.vercel.app", "https://example.com"]
+
+        참고: Vercel 도메인(*.vercel.app)은 SmartCORSMiddleware에서 자동으로 허용됩니다.
+        """
+        if not self.ALLOWED_ORIGINS_CSV:
+            return []
+
+        # 공백 제거 및 정제
+        origins = [origin.strip() for origin in self.ALLOWED_ORIGINS_CSV.split(",") if origin.strip()]
+
+        # 프로덕션 환경에서는 로깅
+        if self.is_production:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Configured ALLOWED_ORIGINS: {origins}")
+            logger.info("Note: All *.vercel.app domains are automatically allowed by SmartCORSMiddleware")
+
+        return origins
 
     # OpenAI
     OPENAI_API_KEY: str = ""

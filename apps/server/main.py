@@ -3,8 +3,8 @@ JD-Vector Backend - FastAPI Application Entry Point
 """
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.cors import SmartCORSMiddleware
 from app.api.v1.router import api_router
 
 app = FastAPI(
@@ -15,12 +15,13 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS 설정
+# 스마트 CORS 설정
+# Vercel 도메인 패턴을 자동으로 인식하여 허용합니다.
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    SmartCORSMiddleware,
+    allowed_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
