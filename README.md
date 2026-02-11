@@ -28,8 +28,12 @@ RAG(Retrieval-Augmented Generation) 파이프라인을 활용하여 채용 공�
 - **Utilities**: tenacity (재시도 로직), tiktoken (토큰 계산), PyPDFLoader (PDF 파싱)
 
 #### Infrastructure
-- **배포**: Vercel (Frontend), Fly.io (Backend)
+- **배포**:
+  - Frontend: Vercel (https://web-kostiszxr-heyjunns-projects.vercel.app)
+  - Backend: Fly.io (https://jd-vector-api.fly.dev)
 - **데이터베이스**: Supabase (Vector Store + 파일 메타데이터)
+- **CORS**: SmartCORSMiddleware (Vercel 도메인 자동 인식)
+- **컨테이너화**: Docker (Multi-stage build with Poetry)
 - **CI/CD**: GitHub Actions (예정)
 
 ## 프로젝트 구조
@@ -46,6 +50,22 @@ jd-vector/
 ├── docs/             # 문서
 └── scripts/          # 유틸리티 스크립트
 ```
+
+## 🚀 배포된 서비스
+
+### 프로덕션 URL
+- **Frontend**: https://web-kostiszxr-heyjunns-projects.vercel.app
+- **Backend API**: https://jd-vector-api.fly.dev
+- **API 문서**: https://jd-vector-api.fly.dev/docs
+
+### 배포 가이드
+- [전체 배포 가이드](./DEPLOYMENT.md) - 백엔드 + 프론트엔드 배포 프로세스
+- [백엔드 배포 (Fly.io)](./apps/server/DEPLOYMENT.md)
+- [프론트엔드 배포 (Vercel)](./apps/web/DEPLOYMENT_VERCEL.md)
+- [프론트엔드 빠른 시작](./apps/web/QUICKSTART.md)
+- [CORS 설정 가이드](./apps/server/CORS_SETUP.md)
+
+---
 
 ## 시작하기
 
@@ -246,6 +266,56 @@ pnpm dev:server
   - **Response**: 8주 커리큘럼, 주차별 태스크, 큐레이션된 리소스, 진행률 추적 데이터
 - `GET /api/v1/roadmap/health` - 로드맵 서비스 헬스 체크
 
+## 배포 아키텍처
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    사용자 (Browser)                          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+        ┌────────────┴─────────────┐
+        │                          │
+        ▼                          ▼
+┌───────────────┐          ┌──────────────┐
+│   Frontend    │          │   Backend    │
+│   (Vercel)    │◄────────►│   (Fly.io)   │
+│               │   CORS   │              │
+│ React + Vite  │          │   FastAPI    │
+└───────┬───────┘          └──────┬───────┘
+        │                         │
+        │                         │
+        │                  ┌──────┴──────┐
+        │                  │             │
+        │                  ▼             ▼
+        │          ┌─────────────┐  ┌──────────┐
+        └─────────►│  Supabase   │  │  OpenAI  │
+                   │             │  │          │
+                   │ PostgreSQL  │  │ GPT-4o   │
+                   │ + pgvector  │  │ Embed    │
+                   └─────────────┘  └──────────┘
+```
+
+### 주요 배포 특징
+
+**Frontend (Vercel):**
+- 자동 HTTPS 및 CDN
+- Preview 배포 지원 (PR별)
+- 환경 변수 관리
+- 무료 티어 (100GB 대역폭/월)
+
+**Backend (Fly.io):**
+- Docker 기반 배포
+- Auto-scaling (트래픽 없을 때 자동 중지)
+- Health check 모니터링
+- 무료 티어 (3개 작은 VM)
+
+**CORS 설정:**
+- SmartCORSMiddleware로 Vercel 도메인 자동 허용
+- Preview 배포 URL도 자동 인식
+- 환경 변수로 추가 도메인 관리
+
+---
+
 ## 문제 해결 (Troubleshooting)
 
 ### 422 Unprocessable Entity 에러
@@ -295,6 +365,27 @@ POST /api/v1/roadmap/generate 요청 시 타임아웃 발생
 ```typescript
 axios.post('/api/v1/roadmap/generate', data, { timeout: 120000 })
 ```
+
+### CORS 에러
+
+**증상:**
+```
+Access to XMLHttpRequest from origin 'https://your-app.vercel.app'
+has been blocked by CORS policy
+```
+
+**해결 방법:**
+1. **Vercel 도메인**: 자동으로 허용됨 (SmartCORSMiddleware)
+   - `*.vercel.app` 패턴 자동 인식
+   - 별도 설정 불필요
+
+2. **커스텀 도메인**: 환경 변수에 추가
+   ```bash
+   cd apps/server
+   flyctl secrets set ALLOWED_ORIGINS_CSV="http://localhost:3000,https://yourdomain.com"
+   ```
+
+3. **상세 가이드**: [CORS_SETUP.md](./apps/server/CORS_SETUP.md) 참조
 
 ## 개발 컨벤션
 
@@ -421,20 +512,51 @@ Conventional Commits 준수:
 - [x] Vector DB 연동 ID 기반 아키텍처
 - [x] AnalysisPage, ResultPage, RoadmapPage 전체 `document_id` 사용
 
-### Phase 6: 배포 및 최적화 (🚀 진행 중)
+### Phase 6: 배포 및 최적화 (✅ 완료)
 
-- [ ] Vercel 배포 (Frontend)
-- [ ] Fly.io 배포 (Backend)
-- [ ] 성능 최적화
-  - [ ] React.lazy를 통한 코드 스플리팅
-  - [ ] 이미지 최적화 (WebP 변환)
-  - [ ] API 응답 캐싱 전략
-- [ ] Supabase Storage 연동 (파일 영구 저장)
-- [ ] 보안 강화
-  - [ ] API Rate Limiting
-  - [ ] CORS 정책 최적화
-  - [ ] 환경 변수 보안 검증
-- [ ] 모니터링 및 로깅
+**배포:**
+- [x] Vercel 배포 (Frontend)
+  - Production URL: https://web-kostiszxr-heyjunns-projects.vercel.app
+  - SPA 라우팅 설정 (vercel.json)
+  - 환경 변수 관리 (VITE_API_BASE_URL, VITE_SUPABASE_*)
+  - 자동 배포 스크립트 (deploy-vercel.ps1)
+- [x] Fly.io 배포 (Backend)
+  - Production URL: https://jd-vector-api.fly.dev
+  - Multi-stage Dockerfile (Poetry 기반)
+  - 헬스체크 설정 (30초 간격)
+  - Auto-scaling 설정 (min_machines_running: 0)
+  - 자동 배포 스크립트 (deploy.ps1)
+
+**보안 강화:**
+- [x] CORS 정책 최적화
+  - SmartCORSMiddleware 구현
+  - Vercel 도메인(*.vercel.app) 자동 인식
+  - Preflight 요청 캐싱 (10분)
+  - 환경 변수 기반 도메인 관리
+- [x] 환경 변수 보안 검증
+  - .env.example 템플릿 제공
+  - Fly.io Secrets 사용
+  - Vercel Environment Variables 사용
+- [x] TypeScript 타입 안정성
+  - 빌드 에러 제로화
+  - Recharts 타입 호환성 개선
+  - 미사용 변수 제거
+
+**문서화:**
+- [x] 배포 가이드 작성 (DEPLOYMENT.md, DEPLOYMENT_VERCEL.md)
+- [x] CORS 설정 가이드 (CORS_SETUP.md)
+- [x] 빠른 시작 가이드 (QUICKSTART.md)
+- [x] 자동화 스크립트 (PowerShell)
+
+**성능 최적화:**
+- [ ] React.lazy를 통한 코드 스플리팅 (예정)
+- [ ] 이미지 최적화 (WebP 변환) (예정)
+- [ ] API 응답 캐싱 전략 (예정)
+
+**추가 기능:**
+- [ ] Supabase Storage 연동 (파일 영구 저장) (예정)
+- [ ] API Rate Limiting (예정)
+- [ ] 모니터링 및 로깅 (예정)
   - [ ] Sentry 연동 (에러 추적)
   - [ ] Analytics 통합 (사용자 행동 분석)
 
