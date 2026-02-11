@@ -5,7 +5,6 @@ import { FileUpload } from '@/components/upload/FileUpload';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { uploadResume, uploadJobDescription } from '@/lib/api';
-import { analysisService } from '@/services/analysisService';
 
 export const UploadPage = () => {
   const navigate = useNavigate();

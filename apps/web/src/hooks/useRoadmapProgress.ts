@@ -5,7 +5,7 @@
  * 새로고침 후에도 진행률이 유지되도록 함
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { RoadmapWeek } from '../types/roadmap.types';
 
 const STORAGE_KEY_PREFIX = 'jd-vector-roadmap-progress';
@@ -40,7 +40,7 @@ export const useRoadmapProgress = (
   };
 
   // 완료된 태스크 ID 집합 (week_number-task_index 형태)
-  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadProgress);
+  const [_completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadProgress);
 
   // 초기 로드 시 저장된 진행률 적용
   const [weeklyPlan, setWeeklyPlan] = useState<RoadmapWeek[]>(() => {

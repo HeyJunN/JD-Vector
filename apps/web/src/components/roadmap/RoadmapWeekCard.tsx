@@ -4,7 +4,7 @@
  * 주차별 타이틀, 설명, 태스크 체크리스트, 리소스 표시
  */
 
-import { Check, CheckCircle2, Circle, ExternalLink, Clock, Award } from 'lucide-react';
+import { CheckCircle2, ExternalLink, Clock, Award } from 'lucide-react';
 import { TechIconGroup, PlatformIcon } from '../common/TechIcon';
 import type { RoadmapWeek, LearningResource } from '../../types/roadmap.types';
 
