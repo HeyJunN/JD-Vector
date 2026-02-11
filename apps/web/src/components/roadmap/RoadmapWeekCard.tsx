@@ -16,16 +16,16 @@ interface RoadmapWeekCardProps {
 
 // 난이도별 배지 색상
 const DIFFICULTY_COLORS = {
-  beginner: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-  intermediate: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
-  advanced: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+  beginner: 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30',
+  intermediate: 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30',
+  advanced: 'bg-red-500/20 text-red-400 ring-1 ring-red-500/30',
 };
 
 // 우선순위별 색상
 const PRIORITY_COLORS = {
-  high: 'text-red-600 dark:text-red-400',
-  medium: 'text-yellow-600 dark:text-yellow-400',
-  low: 'text-gray-600 dark:text-gray-400',
+  high: 'text-red-400',
+  medium: 'text-yellow-400',
+  low: 'text-slate-500',
 };
 
 export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
@@ -40,30 +40,30 @@ export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 ${className}`}
+      className={`rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 shadow-sm backdrop-blur-sm transition-all hover:border-slate-700/50 hover:shadow-lg hover:shadow-slate-900/20 ${className}`}
     >
       {/* 헤더 */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50 p-6 dark:border-gray-700 dark:from-blue-900/20 dark:to-purple-900/20">
+      <div className="border-b border-slate-800/50 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full bg-blue-500 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-blue-500/20">
                 Week {week.week_number}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-slate-400">
                 {week.duration}
               </span>
               {isCompleted && (
-                <div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
+                <div className="flex items-center gap-1 rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-green-500/30">
                   <CheckCircle2 size={14} />
                   <span>완료</span>
                 </div>
               )}
             </div>
-            <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+            <h3 className="mb-2 text-xl font-bold text-slate-100">
               {week.title}
             </h3>
-            <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            <p className="text-sm leading-relaxed text-slate-300">
               {week.description}
             </p>
           </div>
@@ -78,14 +78,16 @@ export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
 
         {/* 진행률 바 */}
         <div className="mt-4">
-          <div className="mb-1 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+          <div className="mb-1 flex items-center justify-between text-xs text-slate-400">
             <span>진행률</span>
-            <span>{Math.round(progressPercentage)}%</span>
+            <span className="font-semibold">{Math.round(progressPercentage)}%</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+          <div className="h-2 overflow-hidden rounded-full bg-slate-800/50">
             <div
               className={`h-full rounded-full transition-all duration-300 ${
-                isCompleted ? 'bg-green-500' : 'bg-blue-500'
+                isCompleted
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/20'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/20'
               }`}
               style={{ width: `${progressPercentage}%` }}
             />
@@ -95,30 +97,30 @@ export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
 
       {/* 태스크 체크리스트 */}
       <div className="p-6">
-        <h4 className="mb-4 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-          <CheckCircle2 size={18} />
+        <h4 className="mb-4 flex items-center gap-2 font-semibold text-slate-100">
+          <CheckCircle2 size={18} className="text-blue-400" />
           학습 태스크
         </h4>
         <div className="space-y-3">
           {week.tasks.map((task, index) => (
             <label
               key={index}
-              className="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              className="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors hover:bg-slate-800/50"
             >
               <div className="flex-shrink-0 pt-0.5">
                 <input
                   type="checkbox"
                   checked={task.completed}
                   onChange={() => onTaskToggle(week.week_number, index)}
-                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600"
+                  className="h-5 w-5 rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-slate-900"
                 />
               </div>
               <div className="flex-1">
                 <p
                   className={`text-sm ${
                     task.completed
-                      ? 'text-gray-500 line-through dark:text-gray-400'
-                      : 'text-gray-700 dark:text-gray-300'
+                      ? 'text-slate-500 line-through'
+                      : 'text-slate-300'
                   }`}
                 >
                   {task.task}
@@ -144,9 +146,9 @@ export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
 
       {/* 학습 리소스 */}
       {week.resources.length > 0 && (
-        <div className="border-t border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-900/50">
-          <h4 className="mb-4 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-            <Award size={18} />
+        <div className="border-t border-slate-800/50 bg-slate-900/30 p-6">
+          <h4 className="mb-4 flex items-center gap-2 font-semibold text-slate-100">
+            <Award size={18} className="text-purple-400" />
             추천 학습 리소스
           </h4>
           <div className="space-y-3">
@@ -167,20 +169,20 @@ const ResourceItem: React.FC<{ resource: LearningResource }> = ({ resource }) =>
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-blue-300 hover:shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-600"
+      className="flex items-start gap-3 rounded-lg border border-slate-800/50 bg-slate-900/50 p-3 backdrop-blur-sm transition-all hover:border-blue-500/50 hover:bg-slate-800/50 hover:shadow-lg hover:shadow-blue-500/10"
     >
       <div className="flex-shrink-0 pt-1">
-        <PlatformIcon keyword={resource.platform} className="text-gray-600 dark:text-gray-400" />
+        <PlatformIcon keyword={resource.platform} className="text-slate-400" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="mb-1 flex items-center gap-2">
-          <h5 className="truncate font-medium text-gray-900 dark:text-white">
+          <h5 className="truncate font-medium text-slate-100">
             {resource.title}
           </h5>
-          <ExternalLink size={14} className="flex-shrink-0 text-gray-400" />
+          <ExternalLink size={14} className="flex-shrink-0 text-slate-500" />
         </div>
         {resource.description && (
-          <p className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+          <p className="mb-2 text-xs text-slate-400">
             {resource.description}
           </p>
         )}
@@ -196,11 +198,11 @@ const ResourceItem: React.FC<{ resource: LearningResource }> = ({ resource }) =>
               ? '중급'
               : '고급'}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-slate-500">
             {resource.platform}
           </span>
           {resource.estimated_hours && (
-            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 text-xs text-slate-500">
               <Clock size={12} />
               {resource.estimated_hours}시간
             </span>
