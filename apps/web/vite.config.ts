@@ -29,6 +29,24 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React 관련 라이브러리를 별도 청크로 분리
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+
+          // 차트 라이브러리 (용량이 큰 경우 분리)
+          'charts': ['recharts'],
+
+          // 아이콘 라이브러리
+          'icons': ['lucide-react'],
+
+          // 유틸리티 라이브러리
+          'utils': ['axios', 'clsx', 'react-hot-toast'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600, // 청크 크기 경고 임계값을 600KB로 상향 조정
   },
   test: {
     globals: true,
