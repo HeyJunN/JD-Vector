@@ -1,28 +1,34 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 import Header from '@/components/layout/Header';
-import UploadPage from '@/pages/UploadPage';
-import AnalysisPage from '@/pages/AnalysisPage';
-import ResultPage from '@/pages/ResultPage';
-import RoadmapPage from '@/pages/RoadmapPage';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+
+// 코드 스플리팅 - React.lazy를 사용한 동적 임포트
+const UploadPage = lazy(() => import('@/pages/UploadPage'));
+const AnalysisPage = lazy(() => import('@/pages/AnalysisPage'));
+const ResultPage = lazy(() => import('@/pages/ResultPage'));
+const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'));
 
 // Pages (will be implemented later)
-// import HomePage from '@/pages/HomePage';
-// import NotFoundPage from '@/pages/NotFoundPage';
+// const HomePage = lazy(() => import('@/pages/HomePage'));
+// const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 function App() {
   return (
     <div className="min-h-screen bg-slate-950">
       <Header />
-      <Routes>
-        <Route path="/" element={<UploadPage />} />
-        <Route path="/upload" element={<UploadPage />} />
-        <Route path="/analysis" element={<AnalysisPage />} />
-        <Route path="/result" element={<ResultPage />} />
-        <Route path="/roadmap" element={<RoadmapPage />} />
-        {/* Additional routes will be added here */}
-      </Routes>
+      <Suspense fallback={<LoadingSpinner message="페이지를 불러오는 중..." />}>
+        <Routes>
+          <Route path="/" element={<UploadPage />} />
+          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/result" element={<ResultPage />} />
+          <Route path="/roadmap" element={<RoadmapPage />} />
+          {/* Additional routes will be added here */}
+        </Routes>
+      </Suspense>
 
       {/* Toast Notifications - Dark Mode Optimized */}
       <Toaster
