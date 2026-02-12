@@ -3,6 +3,7 @@
  */
 
 import axios from 'axios';
+import { cachedFetch } from '@/utils/apiCache';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -112,47 +113,65 @@ export const analysisService = {
 
   /**
    * 문서 상태 조회 (file_id로 document_id 얻기)
+   * 캐싱 적용: 동일한 fileId에 대한 반복 조회 방지 (TTL: 3분)
    */
   async getDocumentStatus(fileId: string): Promise<DocumentStatusResponse> {
-    try {
-      const response = await axios.get<DocumentStatusResponse>(
-        `${API_BASE_URL}/api/v1/analysis/documents/${fileId}`
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message || '문서 상태 조회에 실패했습니다.'
-        );
-      }
-      throw error;
-    }
+    const cacheKey = `document-status:${fileId}`;
+
+    return cachedFetch(
+      cacheKey,
+      async () => {
+        try {
+          const response = await axios.get<DocumentStatusResponse>(
+            `${API_BASE_URL}/api/v1/analysis/documents/${fileId}`
+          );
+          return response.data;
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            throw new Error(
+              error.response?.data?.message || '문서 상태 조회에 실패했습니다.'
+            );
+          }
+          throw error;
+        }
+      },
+      3 * 60 * 1000 // 3분 TTL
+    );
   },
 
   /**
    * 이력서-JD 매칭 분석
+   * 캐싱 적용: 동일한 resume_id + jd_id 조합에 대한 반복 분석 방지 (TTL: 10분)
    */
   async analyzeMatch(request: MatchRequest): Promise<MatchResponse> {
-    try {
-      const response = await axios.post<MatchResponse>(
-        `${API_BASE_URL}/api/v1/analysis/match`,
-        request,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const cacheKey = `match-analysis:${request.resume_id}:${request.jd_id}`;
 
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message || '분석에 실패했습니다.'
-        );
-      }
-      throw error;
-    }
+    return cachedFetch(
+      cacheKey,
+      async () => {
+        try {
+          const response = await axios.post<MatchResponse>(
+            `${API_BASE_URL}/api/v1/analysis/match`,
+            request,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          return response.data;
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            throw new Error(
+              error.response?.data?.message || '분석에 실패했습니다.'
+            );
+          }
+          throw error;
+        }
+      },
+      10 * 60 * 1000 // 10분 TTL
+    );
   },
 
   /**
