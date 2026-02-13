@@ -549,14 +549,62 @@ Conventional Commits 준수:
 - [x] 자동화 스크립트 (PowerShell)
 
 **성능 최적화:**
-- [ ] React.lazy를 통한 코드 스플리팅 (예정)
-- [ ] 이미지 최적화 (WebP 변환) (예정)
-- [ ] API 응답 캐싱 전략 (예정)
+- [x] React.lazy + Suspense 기반 코드 스플리팅 (페이지별 청크 분리)
+- [x] Vite manual chunk 설정으로 번들 최적화
+  - `react-vendor`, `charts`, `icons`, `utils` 청크 수동 분리
+- [x] API 응답 캐싱 레이어 구현 (`apiCache.ts`)
+  - TTL 기반 메모리 캐시 (기본 5분)
+  - 중복 API 호출 방지
+
+---
+
+### Phase 7: 코드 품질 향상 및 구조 최적화 (✅ 완료)
+
+기능 변경 없이 코드 품질과 유지보수성을 개선하는 리팩토링 작업.
+
+**불필요한 자원 정리:**
+- [x] 미구현 빈 스텁 파일 40개 삭제
+  - `components/ui/`, `components/layout/`, `components/common/`
+  - `hooks/`, `store/`, `services/`, `types/`, `utils/` 의 미사용 플레이스홀더
+- [x] 백엔드 미사용 코드 제거
+  - `upload_service.py` — `import shutil` 미사용 import 제거
+  - `upload_service.py` — Phase 3 미구현 Supabase Storage 함수 2개 제거
+    (`upload_to_supabase_storage`, `delete_from_supabase_storage`)
+
+**디버그 로그 정리:**
+- [x] `ResultPage.tsx` — 프로덕션 노출 `console.log` 4개 제거
+- [x] `apiCache.ts` — 캐시 히트/미스 로그를 `import.meta.env.DEV` 조건부 처리
+- [x] `upload.py` — `print()` 디버그 출력 15개를 표준 `logger` 호출로 교체
+  (`logger.info`, `logger.debug`, `logger.warning`, `logger.error`)
+
+**공통 컴포넌트 추출 (중복 제거):**
+- [x] `components/ui/StatCard.tsx` — `AnalysisPage`·`ResultPage` 중복 구현 통합
+  - color prop 미제공 시 slate 정적 스타일, 제공 시 컬러 + Framer Motion 애니메이션
+- [x] `components/analysis/feedbackConfig.ts` — `FeedbackSection`·`FeedbackCard` 공유 설정 분리
+  - `sectionConfig`, `FeedbackItem` 인터페이스, `isString` 헬퍼
+
+**컴포넌트 분리 (300줄 이상 파일 축소):**
+
+| 원본 파일 | 분리된 파일 | 줄 감소 |
+|-----------|------------|--------|
+| `AnalysisPage.tsx` (347줄) | `components/analysis/DocumentPanel.tsx` | -142줄 |
+| `FeedbackSection.tsx` (269줄) | `components/analysis/FeedbackCard.tsx` | -157줄 |
+| `UploadPage.tsx` (312줄) | `components/upload/UploadLoadingOverlay.tsx`<br>`components/upload/UploadProgressSteps.tsx` | -82줄 |
+| `RoadmapWeekCard.tsx` (216줄) | `components/roadmap/RoadmapResourceItem.tsx` | -51줄 |
+| `ResultPage.tsx` (323줄) | `utils/scoreNormalization.ts` | -58줄 |
+
+**유틸리티 추출:**
+- [x] `utils/scoreNormalization.ts` — 0-1/0-100 혼용 점수를 0-100 정수로 정규화
+  - 백엔드 응답 범위 자동 감지 + 클램핑 처리
+
+---
+
+### 향후 계획
 
 **추가 기능:**
-- [ ] Supabase Storage 연동 (파일 영구 저장) (예정)
-- [ ] API Rate Limiting (예정)
-- [ ] 모니터링 및 로깅 (예정)
+- [ ] Supabase Storage 연동 (파일 영구 저장)
+- [ ] API Rate Limiting
+- [ ] 모니터링 및 로깅
   - [ ] Sentry 연동 (에러 추적)
   - [ ] Analytics 통합 (사용자 행동 분석)
 
