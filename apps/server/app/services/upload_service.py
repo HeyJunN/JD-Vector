@@ -3,7 +3,6 @@ Upload Service - 파일 업로드 비즈니스 로직
 """
 
 import tempfile
-import shutil
 from pathlib import Path
 from typing import Dict, Any, Optional
 from uuid import UUID, uuid4
@@ -332,46 +331,6 @@ def process_pdf_upload(
         # 8. 임시 파일 정리
         if temp_path:
             cleanup_temp_file(temp_path)
-
-
-# ============================================================================
-# Supabase Storage 연동 준비 (Phase 3)
-# ============================================================================
-
-
-async def upload_to_supabase_storage(
-    file_path: Path,
-    bucket_name: str,
-    destination_path: str,
-) -> str:
-    """
-    Supabase Storage에 파일 업로드 (Phase 3에서 구현)
-
-    Args:
-        file_path: 업로드할 파일 경로
-        bucket_name: Supabase 버킷 이름
-        destination_path: 저장될 경로
-
-    Returns:
-        파일 URL
-    """
-    # Phase 3에서 Supabase 클라이언트와 연동하여 구현
-    raise NotImplementedError("Supabase Storage upload will be implemented in Phase 3")
-
-
-async def delete_from_supabase_storage(
-    bucket_name: str,
-    file_path: str,
-) -> None:
-    """
-    Supabase Storage에서 파일 삭제 (Phase 3에서 구현)
-
-    Args:
-        bucket_name: Supabase 버킷 이름
-        file_path: 삭제할 파일 경로
-    """
-    # Phase 3에서 Supabase 클라이언트와 연동하여 구현
-    raise NotImplementedError("Supabase Storage deletion will be implemented in Phase 3")
 
 
 # ============================================================================
