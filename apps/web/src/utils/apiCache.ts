@@ -113,12 +113,12 @@ export async function cachedFetch<T>(
   // 캐시에서 먼저 확인
   const cached = apiCache.get<T>(key);
   if (cached !== null) {
-    console.log(`[Cache HIT] ${key}`);
+    if (import.meta.env.DEV) console.log(`[Cache HIT] ${key}`);
     return cached;
   }
 
   // 캐시 미스 - 새로 가져오기
-  console.log(`[Cache MISS] ${key}`);
+  if (import.meta.env.DEV) console.log(`[Cache MISS] ${key}`);
   const data = await fetcher();
 
   // 캐시에 저장

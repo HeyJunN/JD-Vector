@@ -4,22 +4,16 @@
  * 주차별 타이틀, 설명, 태스크 체크리스트, 리소스 표시
  */
 
-import { CheckCircle2, ExternalLink, Clock, Award } from 'lucide-react';
-import { TechIconGroup, PlatformIcon } from '../common/TechIcon';
-import type { RoadmapWeek, LearningResource } from '../../types/roadmap.types';
+import { CheckCircle2, Award } from 'lucide-react';
+import { TechIconGroup } from '../common/TechIcon';
+import type { RoadmapWeek } from '../../types/roadmap.types';
+import { RoadmapResourceItem } from './RoadmapResourceItem';
 
 interface RoadmapWeekCardProps {
   week: RoadmapWeek;
   onTaskToggle: (weekNumber: number, taskIndex: number) => void;
   className?: string;
 }
-
-// 난이도별 배지 색상
-const DIFFICULTY_COLORS = {
-  beginner: 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30',
-  intermediate: 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30',
-  advanced: 'bg-red-500/20 text-red-400 ring-1 ring-red-500/30',
-};
 
 // 우선순위별 색상
 const PRIORITY_COLORS = {
@@ -153,63 +147,12 @@ export const RoadmapWeekCard: React.FC<RoadmapWeekCardProps> = ({
           </h4>
           <div className="space-y-3">
             {week.resources.map((resource, index) => (
-              <ResourceItem key={index} resource={resource} />
+              <RoadmapResourceItem key={index} resource={resource} />
             ))}
           </div>
         </div>
       )}
     </div>
-  );
-};
-
-// 리소스 아이템 컴포넌트
-const ResourceItem: React.FC<{ resource: LearningResource }> = ({ resource }) => {
-  return (
-    <a
-      href={resource.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-start gap-3 rounded-lg border border-slate-800/50 bg-slate-900/50 p-3 backdrop-blur-sm transition-all hover:border-blue-500/50 hover:bg-slate-800/50 hover:shadow-lg hover:shadow-blue-500/10"
-    >
-      <div className="flex-shrink-0 pt-1">
-        <PlatformIcon keyword={resource.platform} className="text-slate-400" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="mb-1 flex items-center gap-2">
-          <h5 className="truncate font-medium text-slate-100">
-            {resource.title}
-          </h5>
-          <ExternalLink size={14} className="flex-shrink-0 text-slate-500" />
-        </div>
-        {resource.description && (
-          <p className="mb-2 text-xs text-slate-400">
-            {resource.description}
-          </p>
-        )}
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              DIFFICULTY_COLORS[resource.difficulty]
-            }`}
-          >
-            {resource.difficulty === 'beginner'
-              ? '초급'
-              : resource.difficulty === 'intermediate'
-              ? '중급'
-              : '고급'}
-          </span>
-          <span className="text-xs text-slate-500">
-            {resource.platform}
-          </span>
-          {resource.estimated_hours && (
-            <span className="flex items-center gap-1 text-xs text-slate-500">
-              <Clock size={12} />
-              {resource.estimated_hours}시간
-            </span>
-          )}
-        </div>
-      </div>
-    </a>
   );
 };
 

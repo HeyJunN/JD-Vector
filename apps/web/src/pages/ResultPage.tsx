@@ -12,6 +12,8 @@ import { MatchScore } from '@/components/analysis/MatchScore';
 import { CompetencyChart } from '@/components/analysis/CompetencyChart';
 import { FeedbackSection } from '@/components/analysis/FeedbackSection';
 import type { MatchResponse } from '@/services/analysisService';
+import { StatCard } from '@/components/ui/StatCard';
+import { normalizeScore } from '@/utils/scoreNormalization';
 
 interface ResultPageState {
   analysisResult: MatchResponse['data'];
@@ -40,52 +42,15 @@ export const ResultPage = () => {
   }
 
   // section_scores를 CompetencyChart 형식으로 변환
-  // 디버깅: 실제 데이터 확인
-  console.log('🔍 Analysis Data:', {
-    match_score: analysisData.match_score,
-    match_grade: analysisData.match_grade,
-    section_scores: analysisData.section_scores,
-  });
-
-  const competencyData = analysisData.section_scores?.map((section) => {
-    // score가 0-1 범위인지 0-100 범위인지 자동 판단
-    let userScore: number;
-
-    if (typeof section.score !== 'number' || isNaN(section.score)) {
-      userScore = 0;
-    } else if (section.score <= 1) {
-      // 0-1 범위 (예: 0.35 -> 35점)
-      userScore = Math.round(section.score * 100);
-    } else {
-      // 0-100 범위 (예: 35 -> 35점)
-      userScore = Math.round(section.score);
-    }
-
-    // 0-100 사이로 클램핑
-    userScore = Math.max(0, Math.min(100, userScore));
-
-    // JD 목표치는 고정된 합격 기준선 (등급과 무관하게 일정)
-    // 일반적으로 채용 공고 충족 기준은 75-85점 정도
-    const jdRequirement = 80;
-
-    console.log(`📊 ${section.section_type}: userScore=${userScore}, jdRequirement=${jdRequirement}`);
-
-    return {
-      category: section.section_type || 'Unknown',
-      userScore,
-      jdRequirement,
-    };
-  }).filter(item => item.category !== 'Unknown') || [];
+  // JD 목표치는 고정된 합격 기준선 (등급과 무관하게 일정)
+  const competencyData = analysisData.section_scores?.map((section) => ({
+    category: section.section_type || 'Unknown',
+    userScore: normalizeScore(section.score),
+    jdRequirement: 80,
+  })).filter(item => item.category !== 'Unknown') || [];
 
   // 로드맵 페이지로 이동
   const handleViewRoadmap = () => {
-    console.log('🚀 Roadmap 이동:', {
-      resume_file_id: analysisData.resume_file_id,
-      jd_file_id: analysisData.jd_file_id,
-      resume_doc_id: analysisData.resume_document_id,
-      jd_doc_id: analysisData.jd_document_id,
-    });
-
     setIsLoading(true);
     navigate(
       `/roadmap?resume_id=${analysisData.resume_document_id}&jd_id=${analysisData.jd_document_id}&target_weeks=8`,
@@ -267,57 +232,5 @@ export const ResultPage = () => {
 // Sub-components
 // ============================================================================
 
-interface StatCardProps {
-  label: string;
-  value: string;
-  subtitle?: string;
-  icon: React.ReactNode;
-  color: 'blue' | 'green' | 'purple' | 'orange';
-}
-
-const colorClasses = {
-  blue: {
-    icon: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/30',
-  },
-  green: {
-    icon: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/30',
-  },
-  purple: {
-    icon: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/30',
-  },
-  orange: {
-    icon: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/30',
-  },
-};
-
-const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, icon, color }) => {
-  const colors = colorClasses[color];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className={`rounded-xl border backdrop-blur-sm ${colors.border} ${colors.bg}`}
-    >
-      <div className="flex items-center justify-between p-4">
-        <div className="flex-1">
-          <p className="text-xs font-medium text-slate-500">{label}</p>
-          <p className="mt-1 text-2xl font-bold text-slate-100">{value}</p>
-          {subtitle && <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>}
-        </div>
-        <div className={colors.icon}>{icon}</div>
-      </div>
-    </motion.div>
-  );
-};
 
 export default ResultPage;
