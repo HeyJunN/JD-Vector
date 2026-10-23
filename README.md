@@ -6,12 +6,12 @@ RAG(Retrieval-Augmented Generation) 파이프라인을 활용하여 채용 공�
 
 ## 프로젝트 개요
 
-### 🎯 핵심 가치
+### 핵심 가치
 - **데이터 정합성**: Vector DB와 연동된 `document_id` 기반 아키텍처로 파일-벡터 간 일관성 보장
 - **AI 기반 분석**: GPT-4o mini와 임베딩 모델을 활용한 섹션별 역량 매칭 및 피드백 생성
 - **실행 가능한 로드맵**: 부족 역량 70% 이상 집중 학습 + 80개 이상의 큐레이션된 한국어 리소스 제공
 
-### 🛠️ 기술 스택
+### 기술 스택
 
 #### Frontend
 - **Framework**: React 18 + TypeScript + Vite
@@ -51,7 +51,7 @@ jd-vector/
 └── scripts/          # 유틸리티 스크립트
 ```
 
-## 🚀 배포된 서비스
+## 배포된 서비스
 
 ### 프로덕션 URL
 - **Frontend**: https://web-kostiszxr-heyjunns-projects.vercel.app
@@ -65,80 +65,101 @@ jd-vector/
 - [프론트엔드 빠른 시작](./apps/web/QUICKSTART.md)
 - [CORS 설정 가이드](./apps/server/CORS_SETUP.md)
 
----
+## 기능
 
-## 시작하기
+<h3 align="center">이력서 및 채용 공고(JD) 업로드</h3>
 
-### 사전 요구사항
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="본인의 이력서와 지원하고자 하는 기업의 채용공고 업로드" src="https://github.com/user-attachments/assets/aaa27017-87c8-4d4b-b57f-cd579fd9e841" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>본인의 이력서와 지원하고자 하는 기업의 채용공고 업로드</b></td>
+    </tr>
+  </table>
+</div>
 
-- Node.js >= 20.0.0
-- pnpm >= 8.0.0
-- Python >= 3.11
-- Poetry (Python 패키지 관리)
+<h3 align="center">문서 파싱 및 텍스트 추출 검증</h3>
 
-### 1. Node.js 버전 설정
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="업로드된 문서의 페이지 수, 단어수, 추출된 텍스트 본문 확인 후 검증" src="https://github.com/user-attachments/assets/754d26b2-d587-477e-8803-2e01ffbf7f84" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>업로드된 문서의 페이지 수, 단어수, 추출된 텍스트 본문 확인 후 검증</b></td>
+    </tr>
+  </table>
+</div>
 
-```bash
-nvm use
-```
+<h3 align="center">AI 적합도 분석 및 매칭 점수 대시보드</h3>
 
-### 2. Frontend 설정
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="벡터 유사도 분석 기반 산출된 종합 점수 요약" src="https://github.com/user-attachments/assets/c332b4d7-5819-4237-b094-935ecef6f819" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>벡터 유사도 분석 기반 산출된 종합 점수 요약</b></td>
+    </tr>
+  </table>
+</div>
 
-```bash
-cd apps/web
-pnpm install
-cp .env.example .env
-# .env 파일을 편집하여 환경 변수 설정
-```
+<h3 align="center">역량 비교분석</h3>
 
-### 3. Backend 설정
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="기업 목표 역량 수준과 이력서의 매칭도를 방사형 차트로 시각화" src="https://github.com/user-attachments/assets/b98dff1e-c1b2-4a19-b872-0471bc90fc2b" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>기업 목표 역량 수준과 이력서의 매칭도를 방사형 차트로 시각화</b></td>
+    </tr>
+  </table>
+</div>
 
-```bash
-cd apps/server
-poetry install
-cp .env.example .env
-# .env 파일을 편집하여 API 키 등 설정
-```
+<h3 align="center">AI 종합 분석 및 맞춤형 실행 계획</h3>
 
-### 4. 환경 변수 설정
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="분석 결과를 바탕으로 보완사항과 실행 계획 제안" src="https://github.com/user-attachments/assets/9da9bf0f-1699-4200-ba0f-355e620eafea" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>분석 결과를 바탕으로 보완사항과 실행 계획 제안</b></td>
+    </tr>
+  </table>
+</div>
 
-#### Frontend (.env)
+<h3 align="center">맞춤형 학습 로드맵 및 주차별 태스크</h3>
 
-```env
-VITE_API_BASE_URL=http://localhost:8000
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="1920" height="860" alt="부족한 역량을 채우기 위한 8주 커리큘럼 기반 학습 전략과 테스크 체크리스트" src="https://github.com/user-attachments/assets/8a741655-e1e0-4e83-ae28-bf5b8a24aa99" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><b>부족한 역량을 채우기 위한 8주 커리큘럼 기반 학습 전략과 테스크 체크리스트</b></td>
+    </tr>
+  </table>
+</div>
 
-#### Backend (.env)
+## 핵심 기술
 
-```env
-OPENAI_API_KEY=sk-...
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-service-role-key
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/jd_vector
-```
-
-### 5. 개발 서버 실행
-
-#### Frontend
-
-```bash
-pnpm dev
-# http://localhost:3000에서 실행
-```
-
-#### Backend
-
-```bash
-pnpm dev:server
-# http://localhost:8000에서 실행
-# API 문서: http://localhost:8000/docs
-```
-
-## 핵심 기능
-
-### 1. 🔄 Document ID 기반 RAG 파이프라인
+### 1. Document ID 기반 RAG 파이프라인
 
 **데이터 정합성 보장:**
 - 단순 `file_id`가 아닌 **Vector DB 연동 `document_id`** 사용
@@ -150,7 +171,7 @@ pnpm dev:server
 - OpenAI text-embedding-3-small (1536차원) 활용
 - tenacity 기반 재시도 로직으로 안정성 확보
 
-### 2. 🎯 섹션별 스킬 갭 분석
+### 2. 섹션별 스킬 갭 분석
 
 **정밀 매칭 알고리즘:**
 - 이력서와 JD를 섹션별로 분류 (기술 스택, 경험, 자격 요건 등)
@@ -162,7 +183,7 @@ pnpm dev:server
 - 실행 가능한 액션 아이템 제안
 - GPT-4o mini 기반 건설적 피드백
 
-### 3. 📚 맞춤형 8주 학습 로드맵
+### 3. 맞춤형 8주 학습 로드맵
 
 **개인화된 커리큘럼:**
 - 스킬 갭 70% 이상 비중으로 부족 역량 집중 학습
@@ -178,7 +199,7 @@ pnpm dev:server
 - AI 생성 시간을 고려한 **120초 타임아웃** 설정
 - 대용량 요청 처리 안정성 확보
 
-### 4. 🎨 현대적 UI/UX
+### 4. 현대적 UI/UX
 
 **Unified Dark Mode:**
 - Slate-950 기반 일관된 다크 테마
@@ -408,213 +429,6 @@ Conventional Commits 준수:
 - **Frontend**: ESLint + Prettier
 - **Backend**: Black + Ruff + mypy
 - TypeScript 타입 안정성 확보
-
-## 다음 단계 (Phase별 구현 계획)
-
-### Phase 1: 기본 UI 구조 (✅ 완료)
-
-- [x] 프로젝트 초기 구조
-- [x] Frontend/Backend 기본 설정
-- [x] 진입점 파일 작성
-
-### Phase 2: 파일 업로드 및 PDF 파싱 (✅ 완료)
-
-- [x] FileUpload 컴포넌트 (react-dropzone) - Frontend
-- [x] PDF 텍스트 추출 (PyPDFLoader, pdfplumber) - Backend
-- [x] Upload API 엔드포인트 구현 (`POST /api/v1/upload`)
-- [x] 텍스트 정제 및 언어 감지
-- [x] LangChain Document 변환 (RAG 준비)
-- [x] 프론트엔드-백엔드 API 연동 (axios + react-hot-toast)
-- [x] 로딩 UI 및 에러 핸들링
-- [x] AnalysisPage 구현 (업로드된 데이터 시각화)
-
-### Phase 3: RAG 파이프라인 및 매칭 엔진 (✅ 완료)
-
-- [x] PDF 텍스트 추출 및 전처리 로직 완성
-- [x] FastAPI BackgroundTasks를 이용한 자동 벡터 인제션 구현
-- [x] Supabase Vector Store (pgvector) 연동 및 재시도 로직 (tenacity) 적용
-- [x] 섹션 분류 (Section Classification) 및 가중치 기반 매칭 알고리즘 고도화
-- [x] 유사 기술 스택 (Similar Tech Group) 가산점 로직 반영
-- [x] 임베딩 생성 (OpenAI text-embedding-3-small, 1536차원)
-- [x] 벡터 저장 및 검색 (Supabase pgvector RPC 함수)
-- [x] 코사인 유사도 계산 및 매칭 점수/등급 산출
-- [x] 스킬 갭 분석 API (`/analysis/gap-analysis`)
-- [x] 건설적 피드백 생성 (강점, 개선점, 잠재력, 액션 아이템)
-
-### Phase 4: 로드맵 생성 및 콘텐츠 추천 (✅ 완료)
-
-- [x] GPT-4o mini 기반 AI 로드맵 생성
-- [x] 맞춤형 학습 계획 (4-12주 커리큘럼)
-- [x] 고퀄리티 한국어 리소스 매핑 (80+ 학습 리소스)
-  - 프론트엔드: React, TypeScript, Vue, Next.js, HTML, CSS 등 (30+ 리소스)
-  - 백엔드: Node.js, Express, FastAPI, Django, Python 등 (15+ 리소스)
-  - 데이터베이스: SQL, PostgreSQL, MongoDB, Redis (10+ 리소스)
-  - 도구/인프라: Git, Docker, AWS, Testing (10+ 리소스)
-  - 배포: Vercel, Netlify, Deployment (4+ 리소스)
-  - 커리어: Portfolio, Resume, Interview 가이드 (10+ 리소스)
-- [x] 프론트엔드-백엔드 브릿지 전략 (협업 지식 우선 학습)
-- [x] 등급별 로드맵 생성 전략 차별화 (D~S 등급별 맞춤 전략)
-- [x] 부족한 기술 70% 이상 비중 학습 계획
-- [x] 키워드 표준화 (프론트엔드 아이콘 매핑 최적화: 소문자, 공백 제거)
-- [x] 주차별 체크리스트 및 태스크 생성 (3-5개/주)
-- [x] 로드맵 생성 API 엔드포인트 (`POST /api/v1/roadmap/generate`)
-- [x] 리소스 메타데이터 (platform, difficulty, estimated_hours)
-- [x] RoadmapPage 프론트엔드 구현
-- [x] TodoChecklist 컴포넌트 구현
-
-### Phase 5: 프론트엔드 시각화 및 로드맵 연동 (✅ 완료)
-
-**로드맵 페이지 구현:**
-- [x] TypeScript 타입 정의 (roadmap.types.ts)
-- [x] TechIcon 컴포넌트 (키워드 → 아이콘 자동 매핑, lucide-react 활용)
-- [x] PlatformIcon 컴포넌트 (플랫폼별 아이콘 표시)
-- [x] ProgressTracker 컴포넌트 (전체 및 주차별 진행률 시각화)
-- [x] RoadmapWeekCard 컴포넌트 (주차별 학습 계획 카드)
-  - 체크리스트 기능 (태스크 완료 토글)
-  - 난이도별 배지 (beginner/intermediate/advanced)
-  - 우선순위별 색상 코딩 (high/medium/low)
-  - 리소스 링크 (플랫폼, 예상 시간 표시)
-- [x] RoadmapPage 메인 페이지
-  - Axios를 통한 API 호출 (`POST /api/v1/roadmap/generate`, 타임아웃: 120초)
-  - 로컬 상태 관리 (태스크 완료 상태 추적)
-  - 로딩 스켈레톤 UI
-  - 완료 축하 애니메이션
-  - 반응형 대시보드 레이아웃 (좌측 진행률, 우측 주차별 카드)
-
-**UX 강화:**
-- [x] 로딩 스피너 및 메시지
-- [x] 에러 처리 및 사용자 안내
-- [x] 실시간 진행률 업데이트
-- [x] 완료 시 축하 애니메이션 및 메시지
-- [x] Tailwind CSS 기반 현대적 UI 디자인
-- [x] **Unified Dark Mode (Slate-950 기반)**
-  - ResultPage & RoadmapPage 일관된 다크 테마
-  - Glassmorphism 효과 (`bg-gradient-to-br from-slate-900/90 to-slate-950/90`)
-  - Backdrop blur 및 네온 진행률 바 (`shadow-lg shadow-blue-500/20`)
-
-**분석 결과 시각화:**
-- [x] MatchScore 컴포넌트 (원형 프로그레스 바, 등급별 색상)
-- [x] CompetencyChart 컴포넌트 (Recharts Radar Chart, 역량 비교)
-- [x] FeedbackSection 컴포넌트 (강점/약점/잠재력/실행계획 시각화)
-- [x] ResultPage 완성 (모든 컴포넌트 통합)
-- [x] Framer Motion 애니메이션 적용
-- [x] App.tsx 라우팅 연동
-- [x] AnalysisPage → ResultPage → RoadmapPage 플로우 구성
-
-**한국어 로컬라이제이션:**
-- [x] `labelMapper.ts` 유틸리티 구현 (영문 → 한글 자동 매핑)
-- [x] 카테고리 배지 한글화 (`preferred` → `우대 사항`, `experience` → `경력/경험`)
-- [x] 카테고리별 색상 + 아이콘 조합 (CheckCircle, Star, Briefcase, Zap, Code)
-- [x] ResultPage & RoadmapPage 일관된 용어 사용
-
-**데이터 정합성 강화:**
-- [x] `file_id` → `document_id` 전환으로 422 에러 해결
-- [x] Vector DB 연동 ID 기반 아키텍처
-- [x] AnalysisPage, ResultPage, RoadmapPage 전체 `document_id` 사용
-
-### Phase 6: 배포 및 최적화 (✅ 완료)
-
-**배포:**
-- [x] Vercel 배포 (Frontend)
-  - Production URL: https://web-kostiszxr-heyjunns-projects.vercel.app
-  - SPA 라우팅 설정 (vercel.json)
-  - 환경 변수 관리 (VITE_API_BASE_URL, VITE_SUPABASE_*)
-  - 자동 배포 스크립트 (deploy-vercel.ps1)
-- [x] Fly.io 배포 (Backend)
-  - Production URL: https://jd-vector-api.fly.dev
-  - Multi-stage Dockerfile (Poetry 기반)
-  - 헬스체크 설정 (30초 간격)
-  - Auto-scaling 설정 (min_machines_running: 0)
-  - 자동 배포 스크립트 (deploy.ps1)
-
-**보안 강화:**
-- [x] CORS 정책 최적화
-  - SmartCORSMiddleware 구현
-  - Vercel 도메인(*.vercel.app) 자동 인식
-  - Preflight 요청 캐싱 (10분)
-  - 환경 변수 기반 도메인 관리
-- [x] 환경 변수 보안 검증
-  - .env.example 템플릿 제공
-  - Fly.io Secrets 사용
-  - Vercel Environment Variables 사용
-- [x] TypeScript 타입 안정성
-  - 빌드 에러 제로화
-  - Recharts 타입 호환성 개선
-  - 미사용 변수 제거
-
-**문서화:**
-- [x] 배포 가이드 작성 (DEPLOYMENT.md, DEPLOYMENT_VERCEL.md)
-- [x] CORS 설정 가이드 (CORS_SETUP.md)
-- [x] 빠른 시작 가이드 (QUICKSTART.md)
-- [x] 자동화 스크립트 (PowerShell)
-
-**성능 최적화:**
-- [x] React.lazy + Suspense 기반 코드 스플리팅 (페이지별 청크 분리)
-- [x] Vite manual chunk 설정으로 번들 최적화
-  - `react-vendor`, `charts`, `icons`, `utils` 청크 수동 분리
-- [x] API 응답 캐싱 레이어 구현 (`apiCache.ts`)
-  - TTL 기반 메모리 캐시 (기본 5분)
-  - 중복 API 호출 방지
-
----
-
-### Phase 7: 코드 품질 향상 및 구조 최적화 (✅ 완료)
-
-기능 변경 없이 코드 품질과 유지보수성을 개선하는 리팩토링 작업.
-
-**불필요한 자원 정리:**
-- [x] 미구현 빈 스텁 파일 40개 삭제
-  - `components/ui/`, `components/layout/`, `components/common/`
-  - `hooks/`, `store/`, `services/`, `types/`, `utils/` 의 미사용 플레이스홀더
-- [x] 백엔드 미사용 코드 제거
-  - `upload_service.py` — `import shutil` 미사용 import 제거
-  - `upload_service.py` — Phase 3 미구현 Supabase Storage 함수 2개 제거
-    (`upload_to_supabase_storage`, `delete_from_supabase_storage`)
-
-**디버그 로그 정리:**
-- [x] `ResultPage.tsx` — 프로덕션 노출 `console.log` 4개 제거
-- [x] `apiCache.ts` — 캐시 히트/미스 로그를 `import.meta.env.DEV` 조건부 처리
-- [x] `upload.py` — `print()` 디버그 출력 15개를 표준 `logger` 호출로 교체
-  (`logger.info`, `logger.debug`, `logger.warning`, `logger.error`)
-
-**공통 컴포넌트 추출 (중복 제거):**
-- [x] `components/ui/StatCard.tsx` — `AnalysisPage`·`ResultPage` 중복 구현 통합
-  - color prop 미제공 시 slate 정적 스타일, 제공 시 컬러 + Framer Motion 애니메이션
-- [x] `components/analysis/feedbackConfig.ts` — `FeedbackSection`·`FeedbackCard` 공유 설정 분리
-  - `sectionConfig`, `FeedbackItem` 인터페이스, `isString` 헬퍼
-
-**컴포넌트 분리 (300줄 이상 파일 축소):**
-
-| 원본 파일 | 분리된 파일 | 줄 감소 |
-|-----------|------------|--------|
-| `AnalysisPage.tsx` (347줄) | `components/analysis/DocumentPanel.tsx` | -142줄 |
-| `FeedbackSection.tsx` (269줄) | `components/analysis/FeedbackCard.tsx` | -157줄 |
-| `UploadPage.tsx` (312줄) | `components/upload/UploadLoadingOverlay.tsx`<br>`components/upload/UploadProgressSteps.tsx` | -82줄 |
-| `RoadmapWeekCard.tsx` (216줄) | `components/roadmap/RoadmapResourceItem.tsx` | -51줄 |
-| `ResultPage.tsx` (323줄) | `utils/scoreNormalization.ts` | -58줄 |
-
-**유틸리티 추출:**
-- [x] `utils/scoreNormalization.ts` — 0-1/0-100 혼용 점수를 0-100 정수로 정규화
-  - 백엔드 응답 범위 자동 감지 + 클램핑 처리
-
----
-
-### 향후 계획
-
-**추가 기능:**
-- [ ] Supabase Storage 연동 (파일 영구 저장)
-- [ ] API Rate Limiting
-- [ ] 모니터링 및 로깅
-  - [ ] Sentry 연동 (에러 추적)
-  - [ ] Analytics 통합 (사용자 행동 분석)
-
-## 라이선스
-
-MIT License
-
-## 기여
-
-기여를 환영합니다! Pull Request를 보내주세요.
 
 ## 문의
 
