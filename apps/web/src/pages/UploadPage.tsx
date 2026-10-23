@@ -7,6 +7,7 @@ import { UploadProgressSteps } from '@/components/upload/UploadProgressSteps';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
 import { uploadResume, uploadJobDescription } from '@/lib/api';
+import { analysisService } from '@/services/analysisService';
 
 export const UploadPage = () => {
   const navigate = useNavigate();
@@ -80,15 +81,28 @@ export const UploadPage = () => {
         });
       }
 
-      // 3. 벡터화 대기 (백그라운드에서 자동 실행)
-      setUploadStage('문서를 벡터화하고 있습니다...');
-      toastId = toast.loading('문서를 벡터화하고 있습니다...');
+      // 3. 벡터화 완료 확인 (서버에서 동기식으로 처리되므로 즉시 조회 가능)
+      setUploadStage('벡터화 상태를 확인하는 중...');
+      toastId = toast.loading('벡터화 상태를 확인하는 중...');
 
-      // 백그라운드 벡터화가 시작될 시간을 주기 위해 잠시 대기
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const [resumeStatus, jdStatus] = await Promise.all([
+        analysisService.getDocumentStatus(resumeResponse.file_id),
+        analysisService.getDocumentStatus(jdResponse.file_id),
+      ]);
+
+      if (resumeStatus.embedding_status !== 'completed') {
+        throw new Error(
+          `이력서 임베딩에 실패했습니다 (상태: ${resumeStatus.embedding_status ?? '알 수 없음'}). 잠시 후 다시 시도해주세요.`
+        );
+      }
+      if (jdStatus.embedding_status !== 'completed') {
+        throw new Error(
+          `채용공고 임베딩에 실패했습니다 (상태: ${jdStatus.embedding_status ?? '알 수 없음'}). 잠시 후 다시 시도해주세요.`
+        );
+      }
 
       toast.dismiss(toastId);
-      toast.success('벡터화가 진행 중입니다!');
+      toast.success('벡터화가 완료되었습니다!');
 
       // 4. 성공 - 분석 페이지로 이동
       toast.success('파일 업로드가 완료되었습니다! 분석을 시작합니다.');

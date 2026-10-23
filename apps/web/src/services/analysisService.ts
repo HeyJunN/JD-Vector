@@ -2,10 +2,8 @@
  * Analysis Service - 분석 API 호출
  */
 
-import axios from 'axios';
+import { apiClient } from '@/lib/api/client';
 import { cachedFetch } from '@/utils/apiCache';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export interface MatchRequest {
   resume_id: string;
@@ -90,25 +88,11 @@ export const analysisService = {
    * 문서 벡터화
    */
   async ingestDocument(request: IngestRequest): Promise<IngestResponse> {
-    try {
-      const response = await axios.post<IngestResponse>(
-        `${API_BASE_URL}/api/v1/analysis/ingest`,
-        request,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message || '문서 벡터화에 실패했습니다.'
-        );
-      }
-      throw error;
-    }
+    const response = await apiClient.post<IngestResponse>(
+      '/api/v1/analysis/ingest',
+      request
+    );
+    return response.data;
   },
 
   /**
@@ -121,19 +105,10 @@ export const analysisService = {
     return cachedFetch(
       cacheKey,
       async () => {
-        try {
-          const response = await axios.get<DocumentStatusResponse>(
-            `${API_BASE_URL}/api/v1/analysis/documents/${fileId}`
-          );
-          return response.data;
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            throw new Error(
-              error.response?.data?.message || '문서 상태 조회에 실패했습니다.'
-            );
-          }
-          throw error;
-        }
+        const response = await apiClient.get<DocumentStatusResponse>(
+          `/api/v1/analysis/documents/${fileId}`
+        );
+        return response.data;
       },
       3 * 60 * 1000 // 3분 TTL
     );
@@ -149,26 +124,11 @@ export const analysisService = {
     return cachedFetch(
       cacheKey,
       async () => {
-        try {
-          const response = await axios.post<MatchResponse>(
-            `${API_BASE_URL}/api/v1/analysis/match`,
-            request,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          return response.data;
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            throw new Error(
-              error.response?.data?.message || '분석에 실패했습니다.'
-            );
-          }
-          throw error;
-        }
+        const response = await apiClient.post<MatchResponse>(
+          '/api/v1/analysis/match',
+          request
+        );
+        return response.data;
       },
       10 * 60 * 1000 // 10분 TTL
     );
@@ -178,38 +138,19 @@ export const analysisService = {
    * 스킬 갭 분석
    */
   async analyzeGap(request: MatchRequest): Promise<GapAnalysisResponse> {
-    try {
-      const response = await axios.post<GapAnalysisResponse>(
-        `${API_BASE_URL}/api/v1/analysis/gap-analysis`,
-        request,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message || '갭 분석에 실패했습니다.'
-        );
-      }
-      throw error;
-    }
+    const response = await apiClient.post<GapAnalysisResponse>(
+      '/api/v1/analysis/gap-analysis',
+      request
+    );
+    return response.data;
   },
 
   /**
    * 분석 서비스 헬스 체크
    */
   async checkHealth(): Promise<{ status: string; service: string }> {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/v1/analysis/health`);
-      return response.data;
-    } catch (error) {
-      throw new Error('분석 서비스에 연결할 수 없습니다.');
-    }
+    const response = await apiClient.get('/api/v1/analysis/health');
+    return response.data;
   },
 };
 

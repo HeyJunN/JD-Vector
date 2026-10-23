@@ -98,9 +98,10 @@ export const AnalysisPage = () => {
       });
     } catch (error) {
       console.error('Analysis error:', error);
+      toast.dismiss('check-status');
+      toast.dismiss('analysis');
       toast.error(
-        error instanceof Error ? error.message : '분석 중 오류가 발생했습니다.',
-        { id: 'analysis' }
+        error instanceof Error ? error.message : '분석 중 오류가 발생했습니다.'
       );
       setIsAnalyzing(false);
     }
